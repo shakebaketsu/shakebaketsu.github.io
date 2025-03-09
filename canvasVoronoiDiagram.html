@@ -1,6 +1,6 @@
 ﻿<html>
   <head>
-    <title>すごい</title>
+    <title>ボロノイ図アニメーション</title>
     <script type="text/javascript">
 
 	var canvas;
@@ -9,7 +9,7 @@
 	var imageData;
 	var width;
 	var height;
-	var pixels;  // ピクセル配列：RGBA4要素で1ピクセル
+	var pixels;
 	var mouse = {x:0,y:0};
 
 	function init(){
@@ -18,11 +18,10 @@
 		context = canvas.getContext('2d');
 
 
-		// キャンバス全体のピクセル情報を取得
 		imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 		width = imageData.width;
 		height = imageData.height;
-		pixels = imageData.data;  // ピクセル配列：RGBA4要素で1ピクセル
+		pixels = imageData.data; //pixleの配列。R,G,B,Aの順で連続
 
 		for(var i = 0; i < 50 ; i++){
 			points.push( {x:Math.random()*width , y:Math.random()*height,
@@ -45,12 +44,11 @@
 		points[points.length - 1].x = mouse.x;
 		points[points.length - 1].y = mouse.y;
 
-		// ピクセル単位で操作できる
+		//ピクセルの操作
 		for (var y = 0; y < height; ++y) {
 	 		for (var x = 0; x < width; ++x) {
 	 			var color = getValueOfNearestPoint(x,y)*256; 
 	 			var base = (y * width + x) * 4;
-	  			// なんかピクセルに書き込む
 	  			pixels[base + 0] = color ;  // Red
 	  			pixels[base + 1] = color ;  // Green
 	  			pixels[base + 2] = color ;  // Blue
@@ -58,7 +56,6 @@
 		 	}
 		}
 
-		// 変更した内容をキャンバスに書き戻す
 		context.putImageData(imageData, 0, 0);
 
 		window.requestAnimationFrame(update);
@@ -90,11 +87,10 @@
 	}
 
 	function onMove(e) {
-	  // キャンバスの左上端の座標を取得
 	  var offsetX = canvas.getBoundingClientRect().left;
 	  var offsetY = canvas.getBoundingClientRect().top;
 
-	  // マウスが押された座標を取得
+	  //マウス座標の計算
 	  mouse.x = e.clientX - offsetX;
 	  mouse.y = e.clientY - offsetY;
 	}
