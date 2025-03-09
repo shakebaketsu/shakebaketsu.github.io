@@ -9,15 +9,15 @@
 	var imageData;
 	var width;
 	var height;
-	var pixels;  // ピクセル配列：RGBA4要素で1ピクセル
+	var pixels;
 	var maxSpeed = 1;
 	var minSpeed = 0.05;
 	var valueMap = [];
 	var sinWave = [];
-	var period = 256;//周期
-	var amplitude = 50;//振幅
-	var phase = 0;//位相
-	var phaseSpeed  = 1.5;//位相のずれるスピード
+	var period = 256; //周期
+	var amplitude = 50; //振幅
+	var phase = 0; //位相
+	var phaseSpeed  = 1.5; //位相のずれるスピード
 
 	function init(){
 
@@ -25,11 +25,10 @@
 		context = canvas.getContext('2d');
 
 
-		// キャンバス全体のピクセル情報を取得
 		imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 		width = imageData.width;
 		height = imageData.height;
-		pixels = imageData.data;  // ピクセル配列：RGBA4要素で1ピクセル
+		pixels = imageData.data; //pixleの配列。R,G,B,Aの順で連続
 
 
 		for(var i = 0; i < period ; i++){
@@ -61,11 +60,11 @@
 		 	}
 		}
 
+		//ピクセルの操作
 		for (var y = 0; y < height; ++y) {
 	 		for (var x = 0; x < width; ++x) {
 	 			var color = valueMap[Math.floor((y+sinWave[Math.floor((phase+y)%period)]+height)%height) * width + x]*256; 
 	 			var base = (y * width + x) * 4;
-	  			// なんかピクセルに書き込む
 	  			pixels[base + 0] = color ;  // Red
 	  			pixels[base + 1] = color*0.5 ;  // Green
 	  			pixels[base + 2] = 255-color*0.5 ;  // Blue
