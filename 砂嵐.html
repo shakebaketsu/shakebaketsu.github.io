@@ -1,0 +1,63 @@
+﻿<html>
+  <head>
+    <title>すごい</title>
+    <script type="text/javascript">
+
+	var context;
+	var imageData;
+	var width;
+	var height;
+	var pixels;  // ピクセル配列：RGBA4要素で1ピクセル
+	var canvas;
+
+	function init(){
+
+
+		canvas = document.getElementById('mainCanvas');
+		context = canvas.getContext('2d');
+	}
+
+	function update(){
+
+  		canvas.width  = window.innerWidth;
+  		canvas.height = window.innerHeight;
+		// キャンバス全体のピクセル情報を取得
+		imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+		width = imageData.width;
+		height = imageData.height;
+		pixels = imageData.data;  // ピクセル配列：RGBA4要素で1ピクセル
+
+		for (var y = 0; y < height; ++y) {
+	 		for (var x = 0; x < width; ++x) {
+	 			var base = (y * width + x) * 4;
+	 			var randomN = Math.floor(Math.random()*256);
+	  			// なんかピクセルに書き込む
+	  			pixels[base + 0] = randomN;  // Red
+	  			pixels[base + 1] = randomN ;  // Green
+	  			pixels[base + 2] = randomN ;  // Blue
+				pixels[base + 3] = 255;  // Alpha
+		 	}
+		}
+
+
+		// 変更した内容をキャンバスに書き戻す
+		context.putImageData(imageData, 0, 0);
+
+		window.requestAnimationFrame(update);
+	}
+
+	function draw(){
+		init();
+		update();
+	}
+
+
+    </script>
+    <style type="text/css">
+      canvas {}
+    </style>
+  </head>
+  <body onload = "draw();" style = "margin:0px; ">
+    <canvas id="mainCanvas" ></canvas>
+  </body>
+</html>

@@ -1,0 +1,180 @@
+﻿<html>
+  <head>
+    <title>すごい</title>
+    <script type="text/javascript">
+
+	var context;
+	var imageData;
+	var sourceImageData;
+	var width;
+	var height;
+	var pixels;  // ピクセル配列：RGBA4要素で1ピクセル
+	var canvas;
+	var valueMap = [];
+
+	function init(){
+
+
+		canvas = document.getElementById('mainCanvas');
+		canvas.addEventListener('click', onClick, false);
+		context = canvas.getContext('2d');
+
+		width = canvas.width;
+		height = canvas.height;
+
+        context.fillStyle = '#000000';
+        context.fillRect(0, 0, width, height);
+
+
+		context.strokeStyle = '#0000ff';
+		for(var i=0 ; i<10 ; i++){
+			var x1 = Math.random() *  width;
+			var y1 = Math.random() *  height;
+			var x2 = Math.random() *  width;
+			var y2 = Math.random() *  height;
+
+			context.beginPath();
+			context.moveTo(x1, y1);
+			context.lineTo(x2, y2);
+			context.stroke();
+		}
+
+		sourceImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+		imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+		pixels = imageData.data;  // ピクセル配列：RGBA4要素で1ピクセル
+		
+		for (var y = 0; y < height; y++) {
+	 		for (var x = 0; x < width; x++) {
+	 			valueMap[y*width + x] = 0;
+ 			}
+ 		}
+
+		/*
+		for (var y = 0; y < height; ++y) {
+	 		for (var x = 0; x < width; ++x) {
+	 			var base = (y * width + x) * 4;
+	 			var randomN = Math.random() < 0.01 ? 0 : 255;
+	 			//if(randomN == 255)continue;
+	  			// なんかピクセルに書き込む
+	  			pixels[base + 0] = randomN;  // Red
+	  			pixels[base + 1] = randomN ;  // Green
+	  			pixels[base + 2] = randomN ;  // Blue
+				pixels[base + 3] = 255;  // Alpha
+		 	}
+		}
+		*/
+	}
+
+	function update(){
+
+  		//canvas.width  = window.innerWidth;
+  		//canvas.height = window.innerHeight;
+		// キャンバス全体のピクセル情報を取得
+		//imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+		//imageData = sourceImageData;
+
+		/*
+		pixels = imageData.data;  // ピクセル配列：RGBA4要素で1ピクセル
+
+		for (var y = 0; y < height; ++y) {
+	 		for (var x = 0; x < width; ++x) {
+	 			var base = (y * width + x) * 4;
+	 			var randomN = Math.random() < 0.01 ? 0 : 255;
+	 			if(randomN == 255)continue;
+	  			// なんかピクセルに書き込む
+	  			pixels[base + 0] = randomN;  // Red
+	  			pixels[base + 1] = randomN ;  // Green
+	  			pixels[base + 2] = randomN ;  // Blue
+				pixels[base + 3] = 255;  // Alpha
+		 	}
+		}
+		*/
+		//var bufferImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+		//var bufferPixels = bufferImageData.data;  // ピクセル配列：RGBA4要素で1ピクセル
+		
+		var bufferValueMap = [];
+
+		for (var y = 0; y < height; y++) {
+	 		for (var x = 0; x < width; x++) {
+	 			bufferValueMap[y*width + x] = valueMap[y*width + x];
+ 			}
+ 		}
+
+		for (var y = 0; y < height; y++) {
+	 		for (var x = 0; x < width; x++) {
+	 			var base = (y * width + x) * 4;
+	 			if(pixels[base + 2] > 0 )continue;
+	 			var valueMapIndex = y * width + x;
+	 			if(bufferValueMap[valueMapIndex] >= 1)continue;
+	 			var value = bufferValueMap[valueMapIndex];
+	 			
+	 			for(var y2 = -1 ; y2 < 2 ; y2++){
+	 				for(var x2 = -1 ; x2 < 2 ; x2++){
+	 					if(x+x2 < 0 || x+x2 >= width || y+y2 <0 || y+y2 >= height)continue;
+	 					if(x2==0 && y2==0)continue;
+	 					//var base2 = ((y+y2) * width + (x+x2)) * 4;
+	 					var valueMapIndex2 = (y+y2) * width + (x+x2);
+	 					var tmpValue = bufferValueMap[valueMapIndex2]; 
+	 					//var tmpValue = bufferPixels[base2 + 0] / 255; //Red
+	 					//八方位のうち四つ角の位置のもの
+	 					if((x2 != 0) && (y2 != 0)){
+	 						tmpValue /= 6;//マジックナンバー
+	 					}
+	 					value += tmpValue/2;//マジックナンバー
+
+					}
+				}
+
+	  			value = value > 1 ? 1 : value;
+	  			valueMap[valueMapIndex] = value;
+	  			// なんかピクセルに書き込む
+	  			//pixels[base + 0] = value * 255;  // Red
+	  			//pixels[base + 1] = randomN ;  // Green
+	  			//pixels[base + 2] = randomN ;  // Blue
+				//pixels[base + 3] = 255;  // Alpha
+		 	}
+		}
+		for (var y = 0; y < height; y++) {
+	 		for (var x = 0; x < width; x++) {
+	 			var base = (y * width + x) * 4;
+	 			var valueMapIndex = y * width + x;
+	  			pixels[base + 0] = valueMap[valueMapIndex] * 255;  // Red
+	 		}
+	 	}
+		
+
+		// 変更した内容をキャンバスに書き戻す
+		context.putImageData(imageData, 0, 0);
+
+		window.requestAnimationFrame(update);
+	}
+
+	function draw(){
+		init();
+		update();
+	}
+
+	function onClick(e) {
+		//pixels = imageData.data;  // ピクセル配列：RGBA4要素で1ピクセル
+	    var rect = e.target.getBoundingClientRect();
+	    var x = e.clientX - rect.left;
+	    var y = e.clientY - rect.top;
+	    valueMap[y*width + x] = 1;
+	    //var base = (y*width + x)*4;
+		//pixels[base + 0] = 255;  // Red
+		//pixels[base + 1] = 120 ;  // Green
+		//pixels[base + 2] = 0 ;  // Blue
+		//pixels[base + 3] = 255;  // Alpha
+		// 変更した内容をキャンバスに書き戻す
+		//context.putImageData(imageData, 0, 0);
+	}
+
+    </script>
+    <style type="text/css">
+      canvas {}
+    </style>
+  </head>
+  <body onload = "draw();" style = "margin:0px;  background-color:#eeeeee;">
+    <canvas id="mainCanvas" width="900" height="700" style = "background-color:#ffffff;"></canvas>
+  </body>
+</html>
