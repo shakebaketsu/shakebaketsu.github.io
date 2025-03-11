@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>カット尺 電卓</title>
+		<!-- <link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap" rel="stylesheet"> -->
+
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Kosugi&display=swap" rel="stylesheet">
+		<style>
+			html {
+				height: 100%;
+			}
+
+			/* .kosugi-maru-regular {
+				font-family: "Kosugi Maru", sans-serif;
+				font-weight: 400;
+				font-style: normal;
+			}
+
+			.kosugi-regular {
+				font-family: "Kosugi", sans-serif;
+				font-weight: 400;
+				font-style: normal;
+			} */
+
+
+			body {
+				font-family: "arial", "Kosugi", sans-serif;
+				margin: 0;
+				height: 100%;
+			}
+
+			@media (min-aspect-ratio: 1/1) {
+				#content {
+					width: 50rem;
+				}
+			}
+
+			/* @media (max-aspect-ratio: 1/1) {
+				#content {
+					width: vw;
+				}
+			} */
+
+			#content {
+				margin: 0 auto;
+				height: 100%;
+				background-color: rgb(235, 235, 235);
+				/* width: 50em; */
+				display: flex;
+				flex-direction: column;
+			}
+
+			#top-content {
+
+				background-color: rgb(255, 171, 171);
+				flex: 1;
+				display: flex;
+			}
+
+			#bottom-content {
+
+				background-color: rgb(230, 230, 230);
+				height: 50%;
+			}
+
+			#total-content {
+
+				/* background-color: rgba(135, 233, 176, 0.815); */
+				height: 8rem;
+				display: flex;
+			}
+
+			#input-content {
+
+				background-color: rgb(230, 230, 230);
+				height: 8rem;
+			}
+
+			#input-time,
+			#total-time {
+				/* background-color: aquamarine; */
+				text-align: right;
+				font-size: 6rem;
+				margin: 0.5rem 3rem;
+				color: rgb(32, 32, 32);
+			}
+
+			#total-time {
+
+				/* color: #363636; */
+			}
+
+			.current-digit {
+				border-bottom: solid rgb(78, 78, 78) 0.3rem;
+			}
+
+			#list-cols {
+
+				/*text-align: right;*/
+				background-color: rgb(250, 250, 250);
+				width: 6rem;
+				display: flex;
+				flex-direction: column;
+			}
+
+			#list {
+				text-align: right;
+				background-color: rgb(250, 250, 250);
+				flex: 1;
+			}
+
+			#total-text {
+
+				background-color: rgb(250, 250, 250);
+				width: 6rem;
+				display: flex;
+			}
+
+			.label-wrapper {
+				margin: 0.2rem;
+				align-items: center;
+				display: flex;
+				/* background-color: rgb(177, 241, 147); */
+				background-color: rgb(177, 241, 147);
+				border-radius: 0rem;
+				color: rgb(32, 32, 32);
+			}
+
+			.total-label-wrapper {
+
+				flex: 1;
+			}
+
+			#total {
+				/* text-align: right; */
+				background-color: rgb(250, 250, 250);
+				flex: 1;
+				border-top: solid rgb(189, 189, 189);
+			}
+
+			.col-label {
+				/* background-color: aqua; */
+				width: 100%;
+				text-align: center;
+			}
+
+			.total-label {
+				font-size: 1.8rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="content">
+			<div id="top-content">
+				<div id="list-cols">
+					<div class="label-wrapper">
+						<span class="col-label">3</span>
+					</div>
+				</div>
+				<div id="list">
+					12+06
+					<hr>
+					1+12
+				</div>
+			</div>
+			<div id="total-content">
+				<div id="total-text">
+					<div class="total-label-wrapper label-wrapper">
+						<span class="col-label total-label">Total</span>
+					</div>
+				</div>
+				<div id="total">
+					<div id="total-time">
+						18:00+06
+					</div>
+				</div>
+			</div>
+			<div id="input-content">
+				<div id="input-time">
+					<span class="current-digit">4</span>+16
+				</div>
+			</div>
+			<div id="bottom-content">
+				b
+			</div>
+		</div>
+
+	</body>
+</html>
