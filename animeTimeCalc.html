@@ -2,13 +2,14 @@
 <html>
 	<head>
 		<title>カット尺 電卓</title>
+		<link rel="manifest" href="manifest.json" />
 		<!-- <link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap" rel="stylesheet"> -->
 
-		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<!-- <link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Kosugi&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Kosugi&display=swap" rel="stylesheet"> -->
 		<style>
 			html {
 				height: 100%;
@@ -28,7 +29,7 @@
 
 
 			body {
-				font-family: "arial", "Kosugi", sans-serif;
+				font-family: "arial", sans-serif;
 				margin: 0;
 				height: 100%;
 			}
@@ -47,6 +48,7 @@
 
 			#content {
 				margin: 0 auto;
+				min-width: 35rem;
 				height: 100%;
 				background-color: rgb(235, 235, 235);
 				/* width: 50em; */
@@ -64,7 +66,7 @@
 			#bottom-content {
 
 				background-color: rgb(230, 230, 230);
-				height: 50%;
+				height: 40rem;
 			}
 
 			#total-content {
@@ -85,7 +87,7 @@
 				/* background-color: aquamarine; */
 				text-align: right;
 				font-size: 6rem;
-				margin: 0.5rem 3rem;
+				margin: 0.5rem 3rem 0.5rem 0rem;
 				color: rgb(32, 32, 32);
 			}
 
@@ -149,7 +151,7 @@
 			}
 
 			.total-label {
-				font-size: 1.8rem;
+				font-size: 2rem;
 			}
 		</style>
 	</head>
