@@ -58,15 +58,17 @@
 
 			#top-content {
 
+				overflow-y: scroll;
 				background-color: rgb(255, 171, 171);
 				flex: 1;
 				display: flex;
+				flex-direction: column;
 			}
 
 			#bottom-content {
 
 				background-color: rgb(230, 230, 230);
-				height: 40rem;
+				height: 30rem;
 			}
 
 			#total-content {
@@ -153,7 +155,92 @@
 			.total-label {
 				font-size: 2rem;
 			}
+
+			#key-pad {
+				margin: auto;
+				display: grid;
+				grid-template-columns: 1fr 1fr 1fr 1fr;
+				grid-template-rows: 1fr 1fr 1fr 1fr 0.2fr;
+				/* grid-auto-rows: 5rem; */
+				aspect-ratio: 6 / 5;
+				height: 100%;
+			}
+
+			#item12 {
+				grid-column: 1 / 3;
+				grid-row: 4;
+			}
+
+			#item14 {
+				grid-column: 4;
+				grid-row: 3 / 5;
+			}
+
+			.item {
+				/* background-color: aquamarine; */
+				/* border: solid; */
+				padding: 0.1rem;
+
+			}
+
+			#spacer {
+				grid-column: 1 / 5;
+			}
+
+			.key {
+				width: 100%;
+				height: 100%;
+				background-color: rgb(246, 246, 246);
+				border: none;
+				border-radius: 0.5rem;
+				font-size: 3.5rem;
+				padding: 0;
+				box-shadow: 0 0 0.1rem 0 rgba(0, 0, 0, 0.4);
+				/* margin: 0.1rem; */
+				color: rgb(32, 32, 32);
+			}
+
+			#keyC,
+			#keyBack {
+
+				background-color: rgb(240, 240, 240);
+			}
+
+			#keyEnter {
+				background-color: rgb(8, 107, 8);
+				color: rgb(249, 252, 245);
+			}
+
+			#key0 {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				grid-template-rows: 1fr;
+			}
+
+			#key0 div {
+				/* margin: 0.1rem; */
+				/* background-color: brown; */
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			#keyPlus {
+				line-height: 2rem;
+			}
 		</style>
+
+		<script>
+			function keyEnterClick() {
+				const htmlText = "<div>test</div>";
+				document.getElementById("top-content").innerHTML += htmlText;
+				// alert("");
+			}
+			window.onload = function () {
+				document.getElementById("keyEnter").addEventListener("click", keyEnterClick);
+			}
+		</script>
+
 	</head>
 	<body>
 		<div id="content">
@@ -187,7 +274,81 @@
 				</div>
 			</div>
 			<div id="bottom-content">
-				b
+				<div id="key-pad">
+					<div id="item1" class="item">
+						<button type="button" id="key7" class="key">
+							7
+						</button>
+					</div>
+					<div id="item2" class="item">
+						<button type="button" id="key8" class="key">
+							8
+						</button>
+					</div>
+					<div id="item3" class="item">
+						<button type="button" id="key9" class="key">
+							9
+						</button>
+					</div>
+					<div id="item4" class="item">
+						<button type="button" id="keyC" class="key">
+							C
+						</button>
+					</div>
+					<div id="item5" class="item">
+						<button type="button" id="key4" class="key">
+							4
+						</button>
+					</div>
+					<div id="item6" class="item">
+						<button type="button" id="key5" class="key">
+							5
+						</button>
+					</div>
+					<div id="item7" class="item">
+						<button type="button" id="key6" class="key">
+							6
+						</button>
+					</div>
+					<div id="item8" class="item">
+						<button type="button" id="keyBack" class="key">
+							←
+						</button>
+					</div>
+					<div id="item9" class="item">
+						<button type="button" id="key1" class="key">
+							1
+						</button>
+					</div>
+					<div id="item10" class="item">
+						<button type="button" id="key2" class="key">
+							2
+						</button>
+					</div>
+					<div id="item11" class="item">
+						<button type="button" id="key3" class="key">
+							3
+						</button>
+					</div>
+					<div id="item12" class="item">
+						<button type="button" id="key0" class="key">
+							<div>0</div>
+							<div></div>
+						</button>
+					</div>
+					<div id="item13" class="item">
+						<button type="button" id="keyPlus" class="key">
+							+<br>.
+						</button>
+					</div>
+					<div id="item14" class="item">
+						<button type="button" id="keyEnter" class="key">
+							Add
+						</button>
+					</div>
+					<div id="spacer" class="item"></div>
+				</div>
+
 			</div>
 		</div>
 
