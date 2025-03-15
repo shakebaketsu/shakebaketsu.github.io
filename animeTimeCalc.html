@@ -38,8 +38,11 @@
 				touch-action: manipulation;
 				/*スクロール禁止*/
 				overflow: hidden;
+				/* 文字選択の禁止 */
 				user-select: none;
 				-webkit-user-select: none;
+				/* 長押し時の吹き出し表示禁止 */
+				-webkit-touch-callout: none;
 			}
 
 			@media (min-aspect-ratio: 1/1) {
@@ -211,8 +214,8 @@
 			#keyC,
 			#keyBack {
 
-				user-select: none;
-				-webkit-user-select: none;
+				/* user-select: none; */
+				/* -webkit-user-select: none; */
 				background-color: rgb(240, 240, 240);
 			}
 
