@@ -1,4 +1,4 @@
 {
 	"name": "test",
-	"display": "fullscreen"
+	"display": "standalone"
 }
