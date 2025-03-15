@@ -32,7 +32,11 @@
 				font-family: "arial", sans-serif;
 				margin: 0;
 				height: 100%;
+
+				/* ---スマホ用指定--- */
+				/*ダブルタップでの拡大禁止*/
 				touch-action: manipulation;
+				/*スクロール禁止*/
 				overflow: hidden;
 			}
 
@@ -240,6 +244,13 @@
 			}
 			window.onload = function () {
 				document.getElementById("keyEnter").addEventListener("click", keyEnterClick);
+
+				document.body.addEventListener("touchstart", function (e) {
+					e.preventDefault();
+				}, { passive: false });
+				document.body.addEventListener("touchmove", function (e) {
+					e.preventDefault();
+				}, { passive: false });
 			}
 		</script>
 
