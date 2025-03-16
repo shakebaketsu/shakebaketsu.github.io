@@ -35,6 +35,9 @@
 				margin: 0;
 				height: 100%;
 
+				/* ---スマホ用指定--- */
+				/*ダブルタップでの拡大禁止*/
+				touch-action: none;
 				/*スクロール禁止*/
 				overflow: hidden;
 				/* 文字選択の禁止 */
@@ -67,7 +70,7 @@
 			#top-content {
 
 				/*ダブルタップでの拡大禁止*/
-				touch-action: none;
+				touch-action: manipulation;
 
 				overflow-x: hidden;
 				overflow-y: scroll;
@@ -311,7 +314,7 @@
 				<div id="list">
 					12+06
 					<hr>
-					1+12 a
+					1+12 ab
 				</div>
 			</div>
 			<div id="total-content">
