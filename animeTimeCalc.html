@@ -41,8 +41,8 @@
 				/*スクロール禁止*/
 				overflow: hidden;
 				/* 文字選択の禁止 */
-				/* user-select: none; */
 				-webkit-user-select: none;
+				user-select: none;
 				/* 長押し無効 */
 				-webkit-touch-callout: none;
 			}
@@ -298,6 +298,7 @@
 		<script>
 			window.onload = function () {
 				document.getElementById("key7").addEventListener("click", key7Click);
+				document.getElementById("keyC").addEventListener("click", keyCClick);
 				document.getElementById("keyEnter").addEventListener("click", keyEnterClick);
 				document.getElementById("top-content").addEventListener("click", topContentClick);
 
@@ -312,6 +313,9 @@
 			function key7Click() {
 				const htmlText = "7";
 				document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function keyCClick() {
+				location.reload();
 			}
 			function topContentClick() {
 
