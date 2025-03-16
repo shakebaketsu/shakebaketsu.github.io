@@ -81,7 +81,7 @@
 				background-color: aqua;
 				/* transition（アニメーション）用に、具体的な数値を指定。auto不可。 */
 				height: 38rem;
-				transition: height 0.3s ease-out;
+				transition: height 0.4s cubic-bezier(.3, .8, .5, 1);
 			}
 
 			#key-pad-wrapper {
@@ -231,6 +231,10 @@
 				box-shadow: 0 0 0.1rem 0 rgba(0, 0, 0, 0.4);
 				/* margin: 0.1rem; */
 				color: rgb(32, 32, 32);
+			}
+
+			.key:hover {
+				background-color: rgb(250, 250, 250);
 			}
 
 			#keyC,
