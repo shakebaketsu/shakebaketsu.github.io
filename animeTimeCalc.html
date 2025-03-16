@@ -69,6 +69,7 @@
 
 			#top-content {
 
+				overflow-x: hidden;
 				overflow-y: scroll;
 				background-color: rgb(255, 171, 171);
 				flex: 1;
@@ -77,6 +78,13 @@
 			}
 
 			#bottom-content {
+				background-color: aqua;
+				/* transition（アニメーション）用に、具体的な数値を指定。auto不可。 */
+				height: 38rem;
+				transition: height 0.3s ease-out;
+			}
+
+			#key-pad-wrapper {
 
 				background-color: rgb(230, 230, 230);
 				height: 30rem;
@@ -84,12 +92,14 @@
 
 			#top-content-shadow {
 				width: 100%;
-				height: 0.8rem;
-				background: linear-gradient(to top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0));
+				height: 1.5rem;
+				background: linear-gradient(to top, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2) 10%, rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.03) 70%, rgba(0, 0, 0, 0));
 				/* background-color: rgba(0, 0, 0, 0.404); */
 				position: absolute;
-				top: -0.8rem;
+				top: -1.5rem;
 				left: 0;
+				/* 重ね順が下の要素へクリックイベントを通過させる */
+				pointer-events: none;
 			}
 
 			#total-content {
@@ -100,9 +110,10 @@
 			}
 
 			#input-content {
-
 				background-color: rgb(230, 230, 230);
 				height: 8rem;
+
+				display: flex;
 			}
 
 			#input-time,
@@ -111,6 +122,7 @@
 				text-align: right;
 				font-size: 6rem;
 				margin: 0.5rem 3rem 0.5rem 0rem;
+				flex: 1;
 				color: rgb(32, 32, 32);
 			}
 
@@ -253,15 +265,32 @@
 			}
 		</style>
 
+
+		<!-- //////////////////////////////////////////  script  ////////////////////////////////////////// -->
+
+
 		<script>
+			window.onload = function () {
+				document.getElementById("keyEnter").addEventListener("click", keyEnterClick);
+				document.getElementById("top-content").addEventListener("click", topContentClick);
+
+			}
+
 			function keyEnterClick() {
 				const htmlText = "<div>test</div>";
 				document.getElementById("top-content").innerHTML += htmlText;
 				// alert("");
 			}
-			window.onload = function () {
-				document.getElementById("keyEnter").addEventListener("click", keyEnterClick);
 
+			function topContentClick() {
+
+				const content = document.getElementById("bottom-content");
+				document.getElementById("top-content").innerHTML += content.clientHeight;
+				if(content.clientHeight == 0) {
+					content.style.height = "38rem";
+				} else {
+					content.style.height = "0";
+				}
 			}
 		</script>
 
@@ -293,87 +322,89 @@
 					</div>
 				</div>
 			</div>
-			<div id="input-content">
-				<div id="input-time">
-					<span class="current-digit">4</span>+16
-				</div>
-			</div>
 			<div id="bottom-content">
-				<div id="key-pad">
-					<div id="item1" class="item">
-						<button type="button" id="key7" class="key">
-							7
-						</button>
+				<div id="input-content">
+					<div id="input-time">
+						<span class="current-digit">4</span>+16
 					</div>
-					<div id="item2" class="item">
-						<button type="button" id="key8" class="key">
-							8
-						</button>
-					</div>
-					<div id="item3" class="item">
-						<button type="button" id="key9" class="key">
-							9
-						</button>
-					</div>
-					<div id="item4" class="item">
-						<button type="button" id="keyC" class="key">
-							C
-						</button>
-					</div>
-					<div id="item5" class="item">
-						<button type="button" id="key4" class="key">
-							4
-						</button>
-					</div>
-					<div id="item6" class="item">
-						<button type="button" id="key5" class="key">
-							5
-						</button>
-					</div>
-					<div id="item7" class="item">
-						<button type="button" id="key6" class="key">
-							6
-						</button>
-					</div>
-					<div id="item8" class="item">
-						<button type="button" id="keyBack" class="key">
-							←
-						</button>
-					</div>
-					<div id="item9" class="item">
-						<button type="button" id="key1" class="key">
-							1
-						</button>
-					</div>
-					<div id="item10" class="item">
-						<button type="button" id="key2" class="key">
-							2
-						</button>
-					</div>
-					<div id="item11" class="item">
-						<button type="button" id="key3" class="key">
-							3
-						</button>
-					</div>
-					<div id="item12" class="item">
-						<button type="button" id="key0" class="key">
-							<div>0</div>
-							<div></div>
-						</button>
-					</div>
-					<div id="item13" class="item">
-						<button type="button" id="keyPlus" class="key">
-							+<br>.
-						</button>
-					</div>
-					<div id="item14" class="item">
-						<button type="button" id="keyEnter" class="key">
-							Add
-						</button>
-					</div>
-					<div id="spacer" class="item"></div>
 				</div>
+				<div id="key-pad-wrapper">
+					<div id="key-pad">
+						<div id="item1" class="item">
+							<button type="button" id="key7" class="key">
+								7
+							</button>
+						</div>
+						<div id="item2" class="item">
+							<button type="button" id="key8" class="key">
+								8
+							</button>
+						</div>
+						<div id="item3" class="item">
+							<button type="button" id="key9" class="key">
+								9
+							</button>
+						</div>
+						<div id="item4" class="item">
+							<button type="button" id="keyC" class="key">
+								C
+							</button>
+						</div>
+						<div id="item5" class="item">
+							<button type="button" id="key4" class="key">
+								4
+							</button>
+						</div>
+						<div id="item6" class="item">
+							<button type="button" id="key5" class="key">
+								5
+							</button>
+						</div>
+						<div id="item7" class="item">
+							<button type="button" id="key6" class="key">
+								6
+							</button>
+						</div>
+						<div id="item8" class="item">
+							<button type="button" id="keyBack" class="key">
+								←
+							</button>
+						</div>
+						<div id="item9" class="item">
+							<button type="button" id="key1" class="key">
+								1
+							</button>
+						</div>
+						<div id="item10" class="item">
+							<button type="button" id="key2" class="key">
+								2
+							</button>
+						</div>
+						<div id="item11" class="item">
+							<button type="button" id="key3" class="key">
+								3
+							</button>
+						</div>
+						<div id="item12" class="item">
+							<button type="button" id="key0" class="key">
+								<div>0</div>
+								<div></div>
+							</button>
+						</div>
+						<div id="item13" class="item">
+							<button type="button" id="keyPlus" class="key">
+								+<br>.
+							</button>
+						</div>
+						<div id="item14" class="item">
+							<button type="button" id="keyEnter" class="key">
+								Add
+							</button>
+						</div>
+						<div id="spacer" class="item"></div>
+					</div>
 
+				</div>
 			</div>
 		</div>
 
