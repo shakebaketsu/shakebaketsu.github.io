@@ -234,6 +234,10 @@
 				border-radius: 0.5rem;
 				font-size: 3.5rem;
 				padding: 0;
+				display: flex;
+				/* text-align: center; */
+				justify-content: center;
+				align-items: center;
 				box-shadow: 0 0 0.1rem 0 rgba(0, 0, 0, 0.4);
 				/* margin: 0.1rem; */
 				color: rgb(32, 32, 32);
@@ -243,6 +247,12 @@
 				user-select: none;
 				-webkit-user-select: none;
 			}
+
+			/* 
+			.key>span {
+				width: 100%;
+				text-align: center;
+			} */
 
 			.key:hover {
 				/* background-color: rgb(250, 250, 250); */
@@ -296,6 +306,7 @@
 
 		<script>
 			window.onload = function () {
+				document.getElementById("key7").addEventListener("click", key7Click);
 				document.getElementById("keyEnter").addEventListener("click", keyEnterClick);
 				document.getElementById("top-content").addEventListener("click", topContentClick);
 
@@ -307,10 +318,15 @@
 				// alert("");
 			}
 
+			function key7Click() {
+				const htmlText = "7";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
+
 			function topContentClick() {
 
 				const content = document.getElementById("bottom-content");
-				document.getElementById("top-content").innerHTML += content.clientHeight;
+				// document.getElementById("top-content").innerHTML += content.clientHeight;
 				if(content.clientHeight == 0) {
 					content.style.height = "38rem";
 				} else {
@@ -350,81 +366,81 @@
 			<div id="bottom-content">
 				<div id="input-content">
 					<div id="input-time">
-						<span class="current-digit">4</span>+16
+						<!-- <span class="current-digit">4</span>+16 -->
 					</div>
 				</div>
 				<div id="key-pad-wrapper">
 					<div id="key-pad">
 						<div id="item1" class="item">
 							<div type="button" id="key7" class="key" ontouchstart="">
-								7
+								<span>7</span>
 							</div>
 						</div>
 						<div id="item2" class="item">
-							<button type="button" id="key8" class="key">
+							<div type="button" id="key8" class="key" ontouchstart="">
 								8
-							</button>
+							</div>
 						</div>
 						<div id="item3" class="item">
-							<button type="button" id="key9" class="key" ontouchstart="">
+							<div type="button" id="key9" class="key" ontouchstart="">
 								9a
-							</button>
+							</div>
 						</div>
 						<div id="item4" class="item">
-							<button type="button" id="keyC" class="key" ontouchstart="">
+							<div type="button" id="keyC" class="key" ontouchstart="">
 								C
-							</button>
+							</div>
 						</div>
 						<div id="item5" class="item">
-							<button type="button" id="key4" class="key" ontouchstart="">
+							<div type="button" id="key4" class="key" ontouchstart="">
 								4
-							</button>
+							</div>
 						</div>
 						<div id="item6" class="item">
-							<button type="button" id="key5" class="key" ontouchstart="">
+							<div type="button" id="key5" class="key" ontouchstart="">
 								5
-							</button>
+							</div>
 						</div>
 						<div id="item7" class="item">
-							<button type="button" id="key6" class="key" ontouchstart="">
+							<div type="button" id="key6" class="key" ontouchstart="">
 								6
-							</button>
+							</div>
 						</div>
 						<div id="item8" class="item">
-							<button type="button" id="keyBack" class="key" ontouchstart="">
+							<div type="button" id="keyBack" class="key" ontouchstart="">
 								←
-							</button>
+							</div>
 						</div>
 						<div id="item9" class="item">
-							<button type="button" id="key1" class="key" ontouchstart="">
+							<div type="button" id="key1" class="key" ontouchstart="">
 								1
-							</button>
+							</div>
 						</div>
 						<div id="item10" class="item">
-							<button type="button" id="key2" class="key" ontouchstart="">
+							<div type="button" id="key2" class="key" ontouchstart="">
 								2
-							</button>
+							</div>
 						</div>
 						<div id="item11" class="item">
-							<button type="button" id="key3" class="key" ontouchstart="">
+							<div type="button" id="key3" class="key" ontouchstart="">
 								3
-							</button>
+							</div>
 						</div>
 						<div id="item12" class="item">
-							<button type="button" id="key0" class="key" ontouchstart="">
+							<div type="button" id="key0" class="key" ontouchstart="">
 								<div>0</div>
 								<div></div>
-							</button>
+							</div>
 						</div>
 						<div id="item13" class="item">
-							<button type="button" id="keyPlus" class="key" ontouchstart="">
+							<div type="button" id="keyPlus" class="key" ontouchstart="">
 								+<br>.
-							</button>
+							</div>
 						</div>
 						<div id="item14" class="item">
-							<button type="button" id="keyEnter" class="key" ontouchstart="">
+							<div type="button" id="keyEnter" class="key" ontouchstart="">
 								Add
-							</button>
+							</div>
 						</div>
 						<div id="spacer" class="item"></div>
 					</div>
