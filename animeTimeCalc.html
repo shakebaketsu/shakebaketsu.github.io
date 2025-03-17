@@ -252,8 +252,8 @@
 				transition: background-color 0.3s;
 
 				/* 文字選択の禁止 */
-				user-select: none;
-				-webkit-user-select: none;
+				/* user-select: none;
+				-webkit-user-select: none; */
 			}
 
 			button {
@@ -285,6 +285,7 @@
 			}
 
 			#keyEnter {
+				font-size: 2.9rem;
 				background-color: rgb(8, 107, 8);
 				color: rgb(249, 252, 245);
 			}
@@ -321,19 +322,64 @@
 
 			}
 
+
+			function key7Click() {
+				const htmlText = "7";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function key8Click() {
+				const htmlText = "8";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function key9Click() {
+				const htmlText = "9";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function keyCClick() {
+				location.reload();
+			}
+			function key4Click() {
+				const htmlText = "4";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function key5Click() {
+				const htmlText = "5";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function key6Click() {
+				const htmlText = "6";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function keyBackClick() {
+				// const htmlText = "7";
+				// document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function key1Click() {
+				const htmlText = "1";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function key2Click() {
+				const htmlText = "2";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function key3Click() {
+				const htmlText = "3";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function key0Click() {
+				const htmlText = "0";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
+			function keyPlusClick() {
+				const htmlText = "+";
+				document.getElementById("input-time").innerHTML += htmlText;
+			}
 			function keyEnterClick() {
 				const htmlText = "<div>test</div>";
 				document.getElementById("top-content").innerHTML += htmlText;
 				// alert("");
 			}
 
-			function key7Click() {
-				const htmlText = "7";
-				document.getElementById("input-time").innerHTML += htmlText;
-			}
-			function keyCClick() {
-				location.reload();
-			}
 			function topContentClick() {
 
 				const content = document.getElementById("bottom-content");
@@ -450,7 +496,7 @@
 						</div>
 						<div id="item14" class="item">
 							<button type="button" id="keyEnter" class="key" ontouchstart="">
-								Add
+								Enter
 							</button>
 						</div>
 						<div id="spacer" class="item"></div>
