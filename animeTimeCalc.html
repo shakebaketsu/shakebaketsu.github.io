@@ -25,16 +25,19 @@
 				--listbox-bg-color: rgb(242, 242, 242);
 				--list-border-color: rgb(235, 235, 235);
 				--list-border-color-dark: rgb(204, 204, 204);
+				--list-time-highlight-color: rgb(247, 247, 247);
 				--content-border-color: rgb(153, 153, 153);
 				--index-text-color: rgb(36, 110, 2);
 				--index-bg-color: rgb(217, 240, 205);
 				--index-border-color: rgb(196, 221, 184);
+				--index-highlight-color: rgb(199, 230, 185);
 
 				--menu-button-color: rgba(255, 255, 255, 0.8);
 				--menu-button-color-active: rgb(228, 228, 228);
 				--menu-icon-color: rgb(124, 124, 124);
 				--dialog-bg-color: rgb(255, 255, 255, 0.3);
-
+				--slider-track-color: rgb(74, 146, 74);
+				--slider-thumb-color: rgb(8, 107, 8);
 			}
 
 			html {
@@ -97,8 +100,8 @@
 
 			#top-content {
 				/*ダブルタップでの拡大禁止?*/
+				/* height: 300px; */
 				touch-action: pan-y;
-
 				overflow-x: hidden;
 				overflow-y: scroll;
 				/* background-color: rgb(255, 255, 255); */
@@ -106,6 +109,7 @@
 				flex: 1;
 				display: flex;
 				flex-direction: column-reverse;
+				transform: translateZ(0);
 			}
 
 			#bottom-content {
@@ -151,6 +155,8 @@
 				position: absolute;
 				left: 1rem;
 				top: 0.5rem;
+
+				z-index: 1;
 			}
 
 
@@ -256,6 +262,65 @@
 				height: 0.8rem;
 			}
 
+			#setting-dialog {
+				border-radius: 4vw;
+				max-width: 80vw;
+			}
+
+			#setting-dialog .dialog-content {
+				padding: 4vw;
+				font-size: 6vw;
+			}
+
+			#view-scale {
+				-webkit-appearance: none;
+				appearance: none;
+				background-color: transparent;
+				width: 60vw;
+				height: 10vw;
+				margin: 3vw auto;
+				outline: none;
+			}
+
+			#view-scale::-webkit-slider-runnable-track {
+				/* top: 7vw; */
+				height: 1vw;
+				background-color: var(--slider-track-color);
+				border-radius: 0.5vw;
+			}
+
+			#view-scale::-webkit-slider-thumb {
+				-webkit-appearance: none;
+				appearance: none;
+				/* cursor: pointer; */
+				background-color: var(--slider-thumb-color);
+				width: 10vw;
+				height: 10vw;
+				border-radius: 50%;
+				/* border: solid 0.1vw var(--key-accent-color-active); */
+				margin-top: -4.75vw;
+				box-shadow: 0 0.4vw 2vw 0 rgba(0, 0, 0, 0.3);
+			}
+
+			#setting-dialog .dialog-content div {
+				text-align: right;
+				margin-top: 4vw;
+			}
+
+			#setting-dialog button {
+				min-width: 10vw;
+				height: 14vw;
+				border: solid 0.1vw var(--content-border-color);
+				border-radius: 2vw;
+				padding: 0 6vw;
+				font-size: 6vw;
+				background-color: var(--key-color);
+				color: var(--font-color-dark);
+				font-family: -apple-system, "arial", sans-serif;
+				transition: background-color 0.3s;
+
+			}
+
 			#clear-confirm-dialog .dialog-content div {
 				text-align: right;
 				margin-top: 2rem;
@@ -275,11 +340,13 @@
 
 			}
 
-			#clear-confirm-dialog button:focus {
+			#clear-confirm-dialog button:focus,
+			#setting-dialog button:focus {
 				outline: none;
 			}
 
-			#clear-confirm-dialog button:active {
+			#clear-confirm-dialog button:active,
+			#setting-dialog button:active {
 				background-color: var(--key-color-active);
 				transition: background-color 0s;
 			}
@@ -307,9 +374,11 @@
 
 			#list-box {
 				height: auto;
+				/* min-height: 100rem; */
 				/* flex-shrink: 0; */
 				background-color: var(--base-color-light);
-
+				/* display: flex;
+				flex-direction: column-reverse; */
 				/* padding-left: 0.5rem;
 				background-color: orange; */
 			}
@@ -324,8 +393,8 @@
 			} */
 
 			.list-item {
-				/* heightの値は、scriptでも使っているので変更する場合は留意 */
 				height: 5rem;
+				/* height: 80px; */
 				display: flex;
 				background-color: var(--base-color-light);
 			}
@@ -365,10 +434,55 @@
 				border-bottom: solid 0.1rem var(--list-border-color-dark);
 			}
 
+			/* .list-item:nth-of-type(2n) .list-item-time {
+				background-color: rgb(245, 245, 245);
+			} */
 
+
+			.list-item:nth-last-of-type(1) {
+
+				animation: listItemHighlight 0.2s ease-out;
+			}
 
 			.list-item:nth-last-of-type(1) .list-item-time {
 				border-bottom: none;
+				animation: listTimeHighlight 1s;
+			}
+
+			.list-item:nth-last-of-type(1) .list-item-index {
+				animation: listIndexHighlight 1s;
+			}
+
+			@keyframes listItemHighlight {
+				0% {
+					height: 1rem;
+					/* height: 10px; */
+					/* transform: scaleY(0.1); */
+				}
+
+				100% {
+					/* height: 5rem; */
+				}
+			}
+
+			@keyframes listTimeHighlight {
+				0% {}
+
+				20% {
+					background-color: var(--list-time-highlight-color);
+				}
+
+				100% {}
+			}
+
+			@keyframes listIndexHighlight {
+				0% {}
+
+				20% {
+					background-color: var(--index-highlight-color);
+				}
+
+				100% {}
 			}
 
 
@@ -611,12 +725,73 @@
 					// alert(ele.value);
 				}
 
+				// const resizeObserver = new ResizeObserver((entries) => {
+				// 	defaultPadHeight = entries[0].target.clientHeight;
+				// });
+				// resizeObserver.observe(document.getElementById("bottom-content"));
+
+				const resizeObserver = new ResizeObserver((entries) => {
+					console.log("listbox_clientHeight Resized");
+					const inputElement = document.getElementById("input-time");
+					// inputElement.innerHTML = entries[0].target.clientHeight;
+					// console.log("listbox clientHeight  " + entries[0].target.clientHeight);
+					document.getElementById("top-content").scrollTo({ top: -1 });//古いスマホ用。スクロールが効かない事があるので一度0でない値を入れてスクロールを促す
+					// document.getElementById("list-box").style.height = document.getElementById("list-box").clientHeight + 1;
+					// document.getElementById("top-content").style.overflowY = "hidden";
+					// document.getElementById("top-content").style.overflowY = "scroll";
+					document.getElementById("top-content").scrollTo({ top: 0 });
+				});
+				resizeObserver.observe(document.getElementById("list-box"));
+
+				// const mObserver = new MutationObserver(() => {
+				// 	console.log("listbox is changed");
+				// 	const inputElement = document.getElementById("input-time");
+				// 	inputElement.innerHTML = document.getElementById("list-box").scrollHeight;
+				// 	// console.log("listbox clientHeight  " + entries[0].target.clientHeight);
+				// 	// document.getElementById("top-content").scrollTo({ top: -1 });//古いスマホ用
+				// 	document.getElementById("top-content").scrollTo({ top: 0 });
+				// });
+				// mObserver.observe(document.getElementById("list-box"), { childList: true });
+
+				// document.getElementById("list-box").addEventListener("DOMContentLoaded", () => {
+				// 	console.log("DOMContentLoaded");
+				// 	const inputElement = document.getElementById("input-time");
+				// 	inputElement.innerHTML = document.getElementById("list-box").scrollHeight;
+				// 	document.getElementById("top-content").scrollTo({ top: 0 });
+				// });
+
+
 				// setEventListener();
 				document.getElementById("menu-button").addEventListener("click", openMenu);
 				document.getElementById("menu-dialog").addEventListener("click", closeMenu);
 				for(const element of document.querySelectorAll(".nomal-dialog")) {
 					element.addEventListener("click", closeDialog);
 				}
+				document.getElementById("setting").addEventListener("click", closeMenu);
+				document.getElementById("setting").addEventListener("click", () => {
+					openDialogElement(document.getElementById("setting-dialog"));
+					document.getElementById("view-scale").dispatchEvent(new Event("input"));
+				});
+
+				document.getElementById("view-scale").addEventListener("input", (e) => {
+					document.querySelector("html").style.fontSize = 2.1 * (Number(e.target.value) / 100) + "vw";
+					document.getElementById("view-scale-percent").innerText = e.target.value + "%";
+					localStorage.setItem("animeTimeCalc_viewScale", e.target.value);
+					// defaultPadHeight = document.getElementById("bottom-content").clientHeight;
+					updateDefaultPadHeight();
+					console.log(e);
+				});
+				document.getElementById("view-scale-reset-button").addEventListener("click", () => {
+					const viewScale = document.getElementById("view-scale");
+					viewScale.value = "100";
+					viewScale.dispatchEvent(new Event("input"));
+				});
+				document.getElementById("view-scale-ok-button").addEventListener("click", () => {
+					document.getElementById("setting-dialog").close();
+					// defaultPadHeight = document.getElementById("bottom-content").clientHeight;
+				});
+
+
 				document.getElementById("hint").addEventListener("click", closeMenu);
 				document.getElementById("hint").addEventListener("click", () => {
 					openDialogElement(document.getElementById("hint-dialog"));
@@ -627,6 +802,7 @@
 					timeArray = [];
 					document.getElementById("list-box").innerHTML = "";
 					updateTotal();
+					localStorage.setItem("animeTimeCalc_timeArray", timeArray);
 					document.getElementById("clear-confirm-dialog").close();
 				});
 				document.getElementById("clear-cnacel-button").addEventListener("click", () => {
@@ -652,12 +828,34 @@
 
 
 				document.getElementById("top-content").addEventListener("scroll", listScrolled);
+				document.getElementById("top-content").addEventListener("scrollend", () => {
+					console.log("scroll end");
+					console.log("end_scrollTop " + document.getElementById("top-content").scrollTop);
+					console.log("end_scrollHeight " + document.getElementById("top-content").scrollHeight);
+					// document.getElementById("top-content").scrollTo({ top: 1000, behavior: "smooth" });
+				});
 
 				padDefaultTransition = document.getElementById("bottom-content").style.transition;
-				defaultPadHeight = document.getElementById("bottom-content").clientHeight;
-				console.log("onload " + defaultPadHeight);
+				// defaultPadHeight = document.getElementById("bottom-content").clientHeight;
+				updateDefaultPadHeight();
+				console.log("onload " + document.getElementById("bottom-content").clientHeight);
 				updateTotal();
 
+
+				// ローカルストレージに保存してあるデータを読み込む
+				const viewScale = document.getElementById("view-scale");
+				viewScale.value = localStorage.getItem("animeTimeCalc_viewScale");
+				viewScale.dispatchEvent(new Event("input"));
+
+				const timeArrayData = localStorage.getItem("animeTimeCalc_timeArray");
+				if(timeArrayData != null && timeArrayData != "") {
+					const timeStringArray = timeArrayData.split(",");
+					for(timeString of timeStringArray) {
+						timeArray.push(Number(timeString));
+					}
+				}
+				updateListBox();
+				updateTotal();
 
 				// document.getElementById("list-box").style.height = "2000px";
 			}
@@ -684,7 +882,7 @@
 				element.showModal();
 				element.animate(
 					[
-						{ transform: "translateY(-2rem)", opacity: "0.1", easing: "ease-out" },
+						{ transform: "translateY(-2rem)", opacity: "0.1", backdropFilter: "blur(1rem)", easing: "ease-out" },
 						{ transform: "translateY(0)", opacity: "1", backdropFilter: "blur(5rem)" }
 					]
 					, 200
@@ -692,6 +890,9 @@
 			}
 
 			function closeDialog(e) {
+				// if(e.target.id == "setting-dialog") {
+				// 	defaultPadHeight = document.getElementById("bottom-content").clientHeight;
+				// }
 				if(e.target.classList.contains("modal")) {//背景をクリックするとdialog要素のイベントが発火するので、それを利用して閉じる
 					e.target.close();
 				}
@@ -703,6 +904,7 @@
 			/* //////////// スワイプ&マウスドラッグに対応したキーパッドスライド処理 //////////// */
 
 			function padPointerDown(e) {
+				console.log("pointerDown");
 
 				const content = document.getElementById("bottom-content");
 				if(content.clientHeight != defaultPadHeight && content.clientHeight != 0) return;
@@ -818,6 +1020,7 @@
 				console.log(e.target.value);
 				switch(key) {
 					case "0":
+						document.getElementById("top-content").scrollTo({ top: 0 });
 						if(inputedString == "0") break;
 					case "1":
 					case "2":
@@ -866,7 +1069,7 @@
 					case "enter":
 						let koma = 0;
 						let selectedIndex = -1;
-						const timeString = document.getElementById("input-time").innerText;
+						const timeString = inputElement.innerText;
 						if(timeString.match("\\+") != null) { //入力文字に+を含むとき
 							const times = timeString.split("+");
 							if(times[1] == "") { //+の後ろが空のとき
@@ -889,30 +1092,33 @@
 
 						timeArray.push(koma);
 
-
+						localStorage.setItem("animeTimeCalc_timeArray", timeArray);
 						// document.getElementById("top-content").style.overflowY = "hidden";
+						// document.getElementById("top-content").scrollTo({ top: -1 });
 
-						let htmlText = "";
-						timeArray.forEach((komaValue, index) => {
-							htmlText += '<div class="list-item" data-state="' + (index == selectedIndex ? 'selected' : 'normal') + '" data-index="' + index + '" data-koma="' + komaValue + '">';
-							htmlText += '	<div class="list-item-index"><div><span>' + (index + 1) + '</span></div></div>';
-							htmlText += '	<div class="list-item-time"><span>' + (komaValue == 0 ? '' : komaToTimeString(komaValue)) + '</span></div>';
-							htmlText += '</div>';
-						});
-						document.getElementById("list-box").innerHTML = htmlText;
+						updateListBox();
 
-						// document.getElementById("top-content").style.overflowY = "scroll";
 						inputElement.innerHTML = "";
-
-
-						const items = document.querySelectorAll(".list-item");
-						for(const item of items) {
-							item.addEventListener("click", () => { });
-						}
-
 						// items[items.length - 1].scrollIntoView();
-						items[items.length - 1].scrollIntoView({ behavior: "smooth" });
+						const items = document.querySelectorAll(".list-item");
 
+
+						// items[items.length - 1].addEventListener("DOMContentLoaded", () => {
+						// 	console.log("DOMContentLoaded");
+						// 	const inputElement = document.getElementById("input-time");
+						// 	inputElement.innerHTML = document.getElementById("list-box").scrollHeight;
+						// 	document.getElementById("top-content").scrollTo({ top: 0 });
+						// });
+
+						// setTimeout(() => {
+						// 	document.getElementById("scroll-target").scrollIntoView({ behavior: "smooth" });
+						// }, 200);
+						// items[items.length - 1].scrollIntoView({ behavior: "smooth" });
+						// if(document.getElementById("top-content").scrollTop <= -1) {//スクロールが一番下にないときだけスクロールさせる。不要なスクロール処理は表示の不具合につながるため。
+						// document.getElementById("top-content").scrollTo({ top: 0, behavior: "smooth" });
+						// document.getElementById("top-content").scrollTo({ top: -1 });
+						document.getElementById("top-content").scrollTo({ top: 0 });
+						// }
 
 						updateTotal();
 						break;
@@ -935,9 +1141,10 @@
 			}
 
 			function listScrolled(e) {
-				console.log(e.target.scrollTop);
-				//スクロールが一番下に来ているとき値は、-1～1になる。上に行くとマイナスの値になる。flex-directionに依ると思われる。
+				console.log("scrollTop " + e.target.scrollTop);
+				//スクロールが一番下に来ているとき値は、-1～1になる?。上に行くとマイナスの値になる。flex-directionに依ると思われる。
 
+				console.log("scrollHeight " + e.target.scrollHeight + "  clientHeight " + e.target.clientHeight);
 				if(e.target.scrollTop >= -1) {//一番下に来ているとき
 					document.getElementById("top-content-shadow").style.display = "none";
 				} else {
@@ -976,6 +1183,27 @@
 				return Math.floor(koma / 24) + "+" + ("0" + (koma % 24)).slice(-2);
 			}
 
+			function updateListBox() {
+				let selectedIndex = -1;
+
+				let htmlText = "";
+				timeArray.forEach((komaValue, index) => {
+					htmlText += '<div class="list-item" data-state="' + (index == selectedIndex ? 'selected' : 'normal') + '" data-index="' + index + '" data-koma="' + komaValue + '">';
+					htmlText += '	<div class="list-item-index"><div><span>' + (index + 1) + '</span></div></div>';
+					htmlText += '	<div class="list-item-time"><span>' + (komaValue == 0 ? '' : komaToTimeString(komaValue)) + '</span></div>';
+					htmlText += '</div>';
+				});
+				document.getElementById("list-box").innerHTML = htmlText;
+
+				// document.getElementById("top-content").style.overflowY = "scroll";
+
+
+				const items = document.querySelectorAll(".list-item");
+				for(const item of items) {
+					item.addEventListener("click", () => { });
+				}
+			}
+
 			function updateTotal() {
 				let totalKoma = 0;
 				for(const koma of timeArray) {
@@ -983,6 +1211,11 @@
 				}
 				document.getElementById("total-time").innerHTML = komaToTimeString(totalKoma);
 				document.getElementById("list-items-count").innerHTML = "(" + timeArray.length + ")";
+			}
+
+			function updateDefaultPadHeight() {
+				defaultPadHeight = Math.round(Number(getComputedStyle(document.documentElement).fontSize.replace("px", "")) * 38);
+				console.log("defaultPadHeight: " + defaultPadHeight);
 			}
 
 		</script>
@@ -1016,6 +1249,18 @@
 					</button>
 				</div>
 			</dialog>
+			<dialog id="setting-dialog" class="modal nomal-dialog">
+				<div class="dialog-content">
+					<span>
+						表示サイズ <span id="view-scale-percent"></span>
+					</span>
+					<input type="range" id="view-scale" min="50" max="150" value="100" step="1" />
+					<div>
+						<button type="button" id="view-scale-reset-button">デフォルト</button>
+						<button type="button" id="view-scale-ok-button">OK</button>
+					</div>
+				</div>
+			</dialog>
 			<dialog id="hint-dialog" class="modal nomal-dialog">
 				<div class="dialog-content">
 					<span class="head">カット尺 電卓</span>
@@ -1023,10 +1268,10 @@
 					<br>
 					<span class="head">入力の省略</span>
 					以下の例のように、省略されたキー入力を用いることができます。<br>
-					【キー入力】　【追加される値】<br>
-					[1] [Enter]　>　1+00<br>
-					[1] [+] [6] [Enter]　>　1+06<br>
-					[+] [6] [Enter]　>　0+06<br>
+					【キー入力】 &nbsp; 【追加される値】<br>
+					[1] [Enter] &nbsp; > &nbsp; 1+00<br>
+					[1] [+] [6] [Enter] &nbsp; > &nbsp; 1+06<br>
+					[+] [6] [Enter] &nbsp; > &nbsp; 0+06<br>
 				</div>
 			</dialog>
 			<dialog id="clear-confirm-dialog" class="modal nomal-dialog">
@@ -1044,6 +1289,7 @@
 				</span>
 			</button>
 			<div id="top-content">
+				<!-- <div id="scroll-target">a</div> -->
 				<!-- <div id="top-content-inner"> -->
 				<div id="list-box"></div>
 				<!-- </div> -->
