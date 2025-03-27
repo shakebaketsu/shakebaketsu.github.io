@@ -4,11 +4,13 @@
 		<title>カット尺 電卓</title>
 		<meta name="viewport" content="viewport-fit=cover" />
 		<link rel="manifest" href="manifest_animeTimeCalc.json" />
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0..1,0" />
 
 
 		<style>
 			:root {
+				--default-font-size: 2.1vw;
+
 				--base-color: rgb(218, 218, 218);
 				--base-color-light: rgb(255, 255, 255);
 				--key-color: rgb(246, 246, 246);
@@ -32,18 +34,22 @@
 				--index-border-color: rgb(196, 221, 184);
 				--index-highlight-color: rgb(199, 230, 185);
 
-				--menu-button-color: rgba(255, 255, 255, 0.8);
+				--menu-button-color: rgba(255, 255, 255, 0.7);
 				--menu-button-color-active: rgb(228, 228, 228);
 				--menu-icon-color: rgb(124, 124, 124);
+				--menu-dialog-icon-color: rgb(158, 158, 158);
 				--dialog-bg-color: rgb(255, 255, 255, 0.3);
 				--slider-track-color: rgb(74, 146, 74);
 				--slider-thumb-color: rgb(8, 107, 8);
+				--item-remove-icon-color: rgb(167, 21, 21);
+				--removed-item-color: rgb(153, 153, 153);
+
 			}
 
 			html {
 				height: 100%;
 				/* font-size: 1rem; */
-				font-size: 2.1vw;
+				font-size: var(--default-font-size);
 				/* 長押し時の吹き出し表示禁止 */
 				/* -webkit-touch-callout: none; */
 			}
@@ -80,7 +86,7 @@
 				}
 
 				html {
-					font-size: 1rem;
+					font-size: calc(var(--default-font-size) * 0.5);
 				}
 
 			}
@@ -156,6 +162,9 @@
 				left: 1rem;
 				top: 0.5rem;
 
+				backdrop-filter: blur(0.5rem);
+				-webkit-backdrop-filter: blur(0.5rem);
+
 				z-index: 1;
 			}
 
@@ -178,11 +187,14 @@
 				/* 文字選択の禁止 */
 				-webkit-user-select: none;
 				user-select: none;
-				background-color: transparent;
+				/* background-color: transparent; */
+				background-color: var(--dialog-bg-color);
 
 				border: solid 0.1rem var(--content-border-color);
 				border-radius: 2rem;
 				box-shadow: 0 0.2rem 1.2rem 0 rgba(0, 0, 0, 0.2);
+				backdrop-filter: blur(5rem);
+				-webkit-backdrop-filter: blur(5rem);
 			}
 
 			.modal::backdrop {
@@ -190,15 +202,48 @@
 			}
 
 
+			.nomal-dialog[open] {
+				animation: fadeSlideIn 0.2s ease-out;
+			}
+
+			@keyframes fadeSlideIn {
+				0% {
+					transform: translateY(-2rem);
+					opacity: 0.1;
+				}
+
+				100% {
+					/* transform: translateY(-2rem); */
+					/* opacity: 0.1; */
+				}
+			}
+
+
+
 			#menu-dialog {
 				position: absolute;
 				margin: 0;
 				left: 1rem;
 				top: 6.5rem;
+				background-color: var(--key-color);
 				border-radius: 1rem;
-				transition: 5s;
+				/* transition: 5s; */
 				transform-origin: top left;
 				/* animation-fill-mode: forwards; */
+			}
+
+			#menu-dialog[open] {
+				/* animation: none; */
+				/* background-color: red; */
+				animation: scaleIn 0.2s ease-out;
+			}
+
+			@keyframes scaleIn {
+				0% {
+					transform: scale(0.2);
+				}
+
+				100% {}
 			}
 
 
@@ -207,15 +252,14 @@
 				padding: 2rem;
 				font-size: 2.2rem;
 				/* background-color: red; */
-				font-family: -apple-system, "arial", sans-serif;
-				background-color: var(--dialog-bg-color);
+				font-family: -apple-system, sans-serif;
+				/* background-color: var(--dialog-bg-color); */
 				color: var(--font-color-dark);
 				display: flex;
 				flex-direction: column;
-				backdrop-filter: blur(5rem);
-				-webkit-backdrop-filter: blur(5rem);
+				/* backdrop-filter: blur(5rem);
+				-webkit-backdrop-filter: blur(5rem); */
 			}
-
 
 			.dialog-content .head {
 				margin: 2rem 0 1rem 0;
@@ -232,24 +276,36 @@
 				padding: 0;
 			}
 
+
+
 			#menu-dialog button {
 				width: 100%;
 				height: 6rem;
 				border: none;
-				padding: 0 2rem;
+				padding: 0 2rem 0 1rem;
 				/* border-radius: 3rem; */
 				/* margin: 0; */
 				font-size: 2.5rem;
 				background-color: var(--key-color);
+				/* background-color: transparent; */
 				color: var(--font-color-dark);
 				text-align: left;
-				font-family: -apple-system, "arial", sans-serif;
+				font-family: -apple-system, sans-serif;
 				transition: background-color 0.3s;
+				display: flex;
+				align-items: center;
 			}
 
 			#menu-dialog button:active {
 				background-color: var(--key-color-active);
 				transition: background-color 0s;
+			}
+
+			#menu-dialog button span {
+				font-size: 3.5rem;
+				margin: auto 1rem auto 0;
+				color: var(--menu-dialog-icon-color);
+				/* background-color: pink; */
 			}
 
 			.dialog-spacer {
@@ -310,13 +366,13 @@
 			#setting-dialog button {
 				min-width: 10vw;
 				height: 14vw;
-				border: solid 0.1vw var(--content-border-color);
+				border: solid 0.25vw var(--content-border-color);
 				border-radius: 2vw;
 				padding: 0 6vw;
 				font-size: 6vw;
 				background-color: var(--key-color);
 				color: var(--font-color-dark);
-				font-family: -apple-system, "arial", sans-serif;
+				font-family: -apple-system, sans-serif;
 				transition: background-color 0.3s;
 
 			}
@@ -335,11 +391,32 @@
 				font-size: 2.5rem;
 				background-color: var(--key-color);
 				color: var(--font-color-dark);
-				font-family: -apple-system, "arial", sans-serif;
+				font-family: -apple-system, sans-serif;
 				transition: background-color 0.3s;
 
 			}
 
+			#clear-confirm-dialog span {
+				font-size: 4.5rem;
+				/* margin: auto 1rem auto 0; */
+				margin-bottom: 2rem;
+				/* color: var(--menu-dialog-icon-color); */
+			}
+
+			#hint-dialog .dialog-content {
+				max-height: 70vh;
+				overflow-y: scroll;
+			}
+
+			#hint-dialog span.icon {
+				flex-wrap: wrap;
+				/* width: 3rem; */
+				font-size: 3rem;
+				/* background-color: red; */
+			}
+
+			.modal:focus,
+			#menu-button:focus,
 			#clear-confirm-dialog button:focus,
 			#setting-dialog button:focus {
 				outline: none;
@@ -376,7 +453,7 @@
 				height: auto;
 				/* min-height: 100rem; */
 				/* flex-shrink: 0; */
-				background-color: var(--base-color-light);
+				background-color: var(--listbox-bg-color);
 				/* display: flex;
 				flex-direction: column-reverse; */
 				/* padding-left: 0.5rem;
@@ -408,7 +485,8 @@
 				justify-content: center;
 			}
 
-			.list-item-index div {
+			.list-item-index>div {
+				/* background-color: blue; */
 				flex: 1;
 				margin: 0;
 				display: flex;
@@ -422,11 +500,49 @@
 				color: var(--index-text-color);
 			}
 
+			.list-item:last-of-type .list-item-index span {
+				/* font-weight: bold; */
+			}
+
+			.list-end-mark {
+				height: 70%;
+				width: 0.3rem;
+				/* background-color: var(--index-text-color); */
+				margin: auto auto auto 0.2rem;
+				display: none;
+			}
+
+			.list-item:last-of-type .list-end-mark {
+				display: block;
+			}
+
+
+			span.list-end-icon {
+				font-size: 1.5rem;
+				/* width: 3rem; */
+				margin: auto auto auto 0.5rem;
+				/* background-color: pink; */
+				color: rgb(141, 182, 117);
+				/* color: var(--index-text-color); */
+				display: none;
+				font-variation-settings: "FILL" 1;
+			}
+
+			.list-item:last-of-type span.list-end-icon {
+				/* display: block; */
+				/* border-left: double 0.5rem var(--index-text-color); */
+
+			}
+
+			.list-item:last-of-type .list-item-index div {
+				/* border-left: double 0.5rem var(--index-text-color); */
+			}
+
 			.list-item-time {
 				flex: 1;
 				display: flex;
 				border-bottom: solid 0.1rem var(--list-border-color);
-
+				background-color: var(--base-color-light);
 			}
 
 
@@ -438,18 +554,21 @@
 				background-color: rgb(245, 245, 245);
 			} */
 
+			.list-item:nth-last-of-type(1) .list-item-time {
+				border-bottom: none;
+			}
 
-			.list-item:nth-last-of-type(1) {
+			.list-item[data-state="added"] {
 
 				animation: listItemHighlight 0.2s ease-out;
 			}
 
-			.list-item:nth-last-of-type(1) .list-item-time {
-				border-bottom: none;
+			.list-item[data-state="added"] .list-item-time {
 				animation: listTimeHighlight 1s;
+				/* background-color: red; */
 			}
 
-			.list-item:nth-last-of-type(1) .list-item-index {
+			.list-item[data-state="added"] .list-item-index {
 				animation: listIndexHighlight 1s;
 			}
 
@@ -486,9 +605,49 @@
 			}
 
 
-			.list-item[data-state="selected"] .list-item-time {
-				background-color: rgb(255, 227, 135);
+
+			.list-item[data-state="removed"] {
+				background-color: var(--removed-item-color);
+				animation: scaleYOut 0.5s ease-out;
+				/* animation: blackOut 0.5s ease-out; */
+				/* z-index: -10; */
+
 			}
+
+			.list-item[data-state="removed"] div,
+			.list-item[data-state="removed"] span {
+
+				animation: fadeOut 0.5s ease-out;
+			}
+
+
+
+			@keyframes scaleYOut {
+				0% {}
+
+				100% {
+					/* background-color: black; */
+					/* transform: translateX(-100%); */
+					/* opacity: 0.1; */
+					/* transform: scaleY(0); */
+					height: 0;
+				}
+			}
+
+			@keyframes fadeOut {
+				0% {}
+
+				100% {
+					background-color: transparent;
+					color: transparent;
+					border-color: var(--removed-item-color);
+				}
+			}
+
+
+			/* .list-item[data-state="selected"] .list-item-time {
+				background-color: rgb(255, 227, 135);
+			} */
 
 			.list-item[data-state="edit"] .list-item-time {
 				background-color: rgb(230, 230, 230);
@@ -497,9 +656,44 @@
 
 			.list-item[data-state="edit"] .list-item-time span {}
 
-			.list-item-time span {
+			button.item-remove-button {
+				/* background-color: pink; */
+				border: none;
+				margin: auto auto auto 1rem;
+				background-color: transparent;
+				padding: 0;
+				display: none;
+			}
+
+			span.list-item-remove-icon {
+				/* height: 100%; */
+				font-size: 4rem;
+				padding: 0.25rem;
+				/* background-color: rgb(235, 255, 255); */
+				color: var(--item-remove-icon-color);
+				/* display: none; */
+				/* font-variation-settings: "FILL" 1; */
+			}
+
+			.list-item[data-state="selected"] button.item-remove-button {
+				/* background-color: rgb(255, 227, 135); */
+
+				display: block;
+				animation: fadeIn 0.2s ease-out;
+			}
+
+			@keyframes fadeIn {
+				0% {
+					opacity: 0.1;
+				}
+
+				100% {}
+			}
+
+			span.list-item-time-inner {
 				font-size: 2.8rem;
 				margin: auto 6rem auto auto;
+				/* background-color: aqua; */
 				color: var(--font-color-light);
 				/* カーニングをオフにしないと等幅の意味がないのでオフにする */
 				font-kerning: none;
@@ -712,11 +906,14 @@
 			const komaPerSec = 24; //秒間最大何コマか。fps。
 			let timeArray = [];
 			let isPadDragging = false;
-			let startStateIsOpen = true;
+			let dragStartStateIsOpen = true;
 			let pointerDownPoint = { x: 0, y: 0 };
+			// let pointerUpPoint = { x: 0, y: 0 };
 			let defaultPadHeight;
 			let padDefaultTransition;
 			let currentPointerId = null;
+			let isPointerDownedInList = false;
+			let latestListActionIsAdding = false;
 
 			window.onload = function () {
 				for(const ele of document.querySelectorAll("#key-pad button")) {
@@ -732,14 +929,13 @@
 
 				const resizeObserver = new ResizeObserver((entries) => {
 					console.log("listbox_clientHeight Resized");
-					const inputElement = document.getElementById("input-time");
+					// const inputElement = document.getElementById("input-time");
 					// inputElement.innerHTML = entries[0].target.clientHeight;
 					// console.log("listbox clientHeight  " + entries[0].target.clientHeight);
-					document.getElementById("top-content").scrollTo({ top: -1 });//古いスマホ用。スクロールが効かない事があるので一度0でない値を入れてスクロールを促す
-					// document.getElementById("list-box").style.height = document.getElementById("list-box").clientHeight + 1;
-					// document.getElementById("top-content").style.overflowY = "hidden";
-					// document.getElementById("top-content").style.overflowY = "scroll";
-					document.getElementById("top-content").scrollTo({ top: 0 });
+					if(latestListActionIsAdding) {
+						document.getElementById("top-content").scrollTo({ top: -1 });//古いスマホ用。スクロールが効かない事があるので一度0でない値を入れてスクロールを促す
+						document.getElementById("top-content").scrollTo({ top: 0 });
+					}
 				});
 				resizeObserver.observe(document.getElementById("list-box"));
 
@@ -760,8 +956,9 @@
 				// 	document.getElementById("top-content").scrollTo({ top: 0 });
 				// });
 
+				document.getElementById("total-content").addEventListener("click", unselectedListItem);
+				document.getElementById("bottom-content").addEventListener("click", unselectedListItem);
 
-				// setEventListener();
 				document.getElementById("menu-button").addEventListener("click", openMenu);
 				document.getElementById("menu-dialog").addEventListener("click", closeMenu);
 				for(const element of document.querySelectorAll(".nomal-dialog")) {
@@ -774,7 +971,8 @@
 				});
 
 				document.getElementById("view-scale").addEventListener("input", (e) => {
-					document.querySelector("html").style.fontSize = 2.1 * (Number(e.target.value) / 100) + "vw";
+					// document.querySelector("html").style.fontSize = 2.1 * (Number(e.target.value) / 100) + "vw";
+					document.querySelector(":root").style.setProperty("--default-font-size", 2.1 * (Number(e.target.value) / 100) + "vw")
 					document.getElementById("view-scale-percent").innerText = e.target.value + "%";
 					localStorage.setItem("animeTimeCalc_viewScale", e.target.value);
 					// defaultPadHeight = document.getElementById("bottom-content").clientHeight;
@@ -816,6 +1014,7 @@
 				});
 
 				document.getElementById("total-content").addEventListener("click", openKeyPad);
+
 
 				document.getElementById("total-content").addEventListener("pointerdown", padPointerDown);
 				document.getElementById("total-content").addEventListener("pointermove", padPointerMove);
@@ -864,13 +1063,13 @@
 			function openMenu() {
 				const dialog = document.getElementById("menu-dialog");
 				dialog.showModal();
-				dialog.animate(
-					[
-						{ transform: "scale(0.2)", easing: "ease-out" },
-						{ transform: "scale(1)" }
-					]
-					, 200
-				);
+				// dialog.animate(
+				// 	[
+				// 		{ transform: "scale(0.2)", easing: "ease-out" },
+				// 		{ transform: "scale(1)" }
+				// 	]
+				// 	, 200
+				// );
 			}
 
 			function closeMenu() {
@@ -880,13 +1079,13 @@
 
 			function openDialogElement(element) {
 				element.showModal();
-				element.animate(
-					[
-						{ transform: "translateY(-2rem)", opacity: "0.1", backdropFilter: "blur(1rem)", easing: "ease-out" },
-						{ transform: "translateY(0)", opacity: "1", backdropFilter: "blur(5rem)" }
-					]
-					, 200
-				);
+				// element.animate(
+				// 	[
+				// 		{ transform: "translateY(-2rem)", opacity: "0.1", backdropFilter: "blur(1rem)", easing: "ease-out" },
+				// 		{ transform: "translateY(0)", opacity: "1", backdropFilter: "blur(5rem)" }
+				// 	]
+				// 	, 200
+				// );
 			}
 
 			function closeDialog(e) {
@@ -905,6 +1104,7 @@
 
 			function padPointerDown(e) {
 				console.log("pointerDown");
+				isPointerDownedInList = false;
 
 				const content = document.getElementById("bottom-content");
 				if(content.clientHeight != defaultPadHeight && content.clientHeight != 0) return;
@@ -915,7 +1115,7 @@
 
 				isPadDragging = true;
 
-				startStateIsOpen = content.clientHeight != 0;
+				dragStartStateIsOpen = content.clientHeight != 0;
 
 				content.style.transition = "none";
 
@@ -927,10 +1127,10 @@
 			function padPointerMove(e) {
 				if(isPadDragging) {
 					if(currentPointerId !== null && e.pointerId != currentPointerId) return;
-
+					// document.getElementById("input-time").innerHTML = e.clientX;
 					let tmpHeight;
 
-					if(startStateIsOpen) {
+					if(dragStartStateIsOpen) {
 						tmpHeight = defaultPadHeight - (e.clientY - pointerDownPoint.y);
 					} else {
 						tmpHeight = - (e.clientY - pointerDownPoint.y);
@@ -956,7 +1156,7 @@
 					const content = document.getElementById("bottom-content");
 					content.style.transition = padDefaultTransition;
 
-					if(startStateIsOpen) {
+					if(dragStartStateIsOpen) {
 						if(content.clientHeight > defaultPadHeight * 0.8) {
 							content.style.height = "38rem";
 						} else {
@@ -971,6 +1171,8 @@
 						}
 
 					}
+					// pointerUpPoint = { x: e.clientX, y: e.clientY };
+					// document.getElementById("total-time").innerHTML = pointerUpPoint.x + "," + pointerUpPoint.y;
 
 					e.target.releasePointerCapture(e.pointerId);
 					currentPointerId = null;
@@ -984,7 +1186,7 @@
 				const content = document.getElementById("bottom-content");
 				content.style.transition = padDefaultTransition;
 
-				if(startStateIsOpen) {
+				if(dragStartStateIsOpen) {
 					content.style.height = "38rem";
 				} else {
 					content.style.height = "0";
@@ -1020,8 +1222,14 @@
 				console.log(e.target.value);
 				switch(key) {
 					case "0":
-						document.getElementById("top-content").scrollTo({ top: 0 });
-						if(inputedString == "0") break;
+						// const its = document.querySelectorAll(".list-item");
+						// its[its.length - 1].dataset.state = "added";
+						// console.log(its[its.length - 1].dataset.state);
+						// document.getElementById("top-content").scrollTo({ top: 0 });
+						if(inputedString == "0") {
+							animateToNotification();
+							break;
+						}
 					case "1":
 					case "2":
 					case "3":
@@ -1097,11 +1305,12 @@
 						// document.getElementById("top-content").scrollTo({ top: -1 });
 
 						updateListBox();
+						latestListActionIsAdding = true;
 
 						inputElement.innerHTML = "";
 						// items[items.length - 1].scrollIntoView();
 						const items = document.querySelectorAll(".list-item");
-
+						items[items.length - 1].dataset.state = "added";
 
 						// items[items.length - 1].addEventListener("DOMContentLoaded", () => {
 						// 	console.log("DOMContentLoaded");
@@ -1120,7 +1329,6 @@
 						document.getElementById("top-content").scrollTo({ top: 0 });
 						// }
 
-						updateTotal();
 						break;
 				}
 
@@ -1165,9 +1373,17 @@
 			}
 
 			function clickListItem(e) {
+				// document.getElementById("input-time").innerHTML = isPointerDownedInList;
+				console.log("clickListItem");
+				if(!isPointerDownedInList) {//safariだとキーパッドをスライドして下げたときに、リストボックスにクリックイベントが渡ることがあるので判定。
+					return;
+				}
+				// console.log("target  " + e.target);
+				if(e.currentTarget.dataset.state == "removed") return;
 
+				e.stopPropagation();//リスト要素以外をクリックしたイベントをdocumentで処理するので、このイベントはdocumentに渡らないようにバブリングを止める
 				if(e.currentTarget.dataset.state == "selected") {
-					e.currentTarget.dataset.state = "edit";
+					e.currentTarget.dataset.state = "normal";
 					return;
 				}
 
@@ -1184,26 +1400,77 @@
 			}
 
 			function updateListBox() {
-				let selectedIndex = -1;
+				// let selectedIndex = -1;
 
 				let htmlText = "";
 				timeArray.forEach((komaValue, index) => {
-					htmlText += '<div class="list-item" data-state="' + (index == selectedIndex ? 'selected' : 'normal') + '" data-index="' + index + '" data-koma="' + komaValue + '">';
+					htmlText += '<div class="list-item" data-state="normal" data-index="' + index + '" data-koma="' + komaValue + '">';
 					htmlText += '	<div class="list-item-index"><div><span>' + (index + 1) + '</span></div></div>';
-					htmlText += '	<div class="list-item-time"><span>' + (komaValue == 0 ? '' : komaToTimeString(komaValue)) + '</span></div>';
+					htmlText += '	<div class="list-item-time"><button type="button" class="item-remove-button" data-index="' + index + '"><span class="material-symbols-outlined list-item-remove-icon">do_not_disturb_on</span></button><span class="list-item-time-inner">' + (komaValue == 0 ? '' : komaToTimeString(komaValue)) + '</span></div>';
 					htmlText += '</div>';
 				});
 				document.getElementById("list-box").innerHTML = htmlText;
+				updateTotal();
 
 				// document.getElementById("top-content").style.overflowY = "scroll";
 
 
 				const items = document.querySelectorAll(".list-item");
 				for(const item of items) {
-					item.addEventListener("click", () => { });
+					item.addEventListener("pointerdown", () => {
+						isPointerDownedInList = true;
+					});
+					item.addEventListener("click", clickListItem);
+					// item.addEventListener("blur", (e) => {
+					// 	console.log("blur event");
+					// 	e.currentTarget.dataset.state = "normal";
+					// });
+				}
+
+				const removeButtons = document.querySelectorAll(".item-remove-button");
+				for(const item of removeButtons) {
+					item.addEventListener("click", (e) => {//リストアイテム削除関数
+						console.log(e.currentTarget.dataset.index);
+						const removeTarget = document.querySelector('.list-item[data-index="' + e.currentTarget.dataset.index + '"]');
+						removeTarget.dataset.state = "removed";
+						removeTarget.addEventListener("animationend", () => {//削除アニメーションが完了したときに実行される関数
+							updateListBox();
+							//古いiPhoneでリストボックスのタッチイベントの位置がズレる不具合を、リセットするためにスクロールする
+							const topContent = document.getElementById("top-content");
+							const beforeScrollTop = topContent.scrollTop;
+							if(beforeScrollTop <= -1) {
+								topContent.scrollTo({ top: beforeScrollTop + 1 });
+								topContent.scrollTo({ top: beforeScrollTop });
+							} else {
+								topContent.scrollTo({ top: beforeScrollTop - 1 });
+								topContent.scrollTo({ top: beforeScrollTop });
+
+							}
+						});
+
+						console.log(removeTarget);
+						timeArray.splice(e.currentTarget.dataset.index, 1);//データの削除
+
+						//updateListBox()
+						latestListActionIsAdding = false;
+						localStorage.setItem("animeTimeCalc_timeArray", timeArray);
+
+					});
+					// item.addEventListener("blur", (e) => {
+					// 	console.log("blur event");
+					// 	e.currentTarget.dataset.state = "normal";
+					// });
 				}
 			}
 
+			function unselectedListItem() {
+
+				console.log("unselectedListItem");
+				const items = document.querySelectorAll(".list-item");
+				for(const item of items) {
+					if(item.dataset.state == "selected") item.dataset.state = "normal";
+				}
+			}
 			function updateTotal() {
 				let totalKoma = 0;
 				for(const koma of timeArray) {
@@ -1237,14 +1504,23 @@
 			<dialog id="menu-dialog" class="modal">
 				<div class="dialog-content">
 					<button type="button" id="setting">
+						<span class="material-symbols-outlined">
+							settings
+						</span>
 						設定
 					</button>
 					<div class="dialog-spacer"></div>
 					<button type="button" id="hint">
+						<span class="material-symbols-outlined">
+							help
+						</span>
 						ヒント
 					</button>
 					<div class="dialog-spacer dialog-spacer-bold"></div>
 					<button type="button" id="reload">
+						<span class="material-symbols-outlined">
+							refresh
+						</span>
 						再読み込み
 					</button>
 				</div>
@@ -1264,18 +1540,31 @@
 			<dialog id="hint-dialog" class="modal nomal-dialog">
 				<div class="dialog-content">
 					<span class="head">カット尺 電卓</span>
-					24kを1秒に繰り上げて、カット尺の合計を求めます。
-					<br>
+					24kを1秒に繰り上げて、カット尺の合計を求めます。<br>
+					(スマートフォン及びタブレット端末向けツール)
 					<span class="head">入力の省略</span>
 					以下の例のように、省略されたキー入力を用いることができます。<br>
 					【キー入力】 &nbsp; 【追加される値】<br>
 					[1] [Enter] &nbsp; > &nbsp; 1+00<br>
 					[1] [+] [6] [Enter] &nbsp; > &nbsp; 1+06<br>
 					[+] [6] [Enter] &nbsp; > &nbsp; 0+06<br>
+					<span class="head">ホーム画面に追加する (推奨)</span>
+					<div>
+						このページをホーム画面に追加することで、独立したアプリのように利用できます。<br>
+						通常のブラウザにおけるアドレスバー等の表示がなくなり広い画面で操作できるためお勧めです。<br>
+						【手順】<br>
+						Safariの場合:<br>
+						<span class="material-symbols-outlined icon">
+							ios_share
+						</span>をタップ > ホーム画面に追加 > 追加
+					</div>
 				</div>
 			</dialog>
 			<dialog id="clear-confirm-dialog" class="modal nomal-dialog">
 				<div class="dialog-content">
+					<span class="material-symbols-outlined">
+						warning
+					</span>
 					リストのデータを全て削除します。
 					<div>
 						<button type="button" id="clear-ok-button">OK</button>
