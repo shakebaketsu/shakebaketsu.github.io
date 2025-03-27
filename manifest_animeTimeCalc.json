@@ -1,4 +1,12 @@
 {
-	"name": "test",
-	"display": "standalone"
+	"name": "カット尺 電卓",
+	"short_name": "カット尺 電卓",
+	"display": "standalone",
+	"icons": [
+		{
+			"src": "animeTimeCalc_images/icon_192x192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		}
+	]
 }
