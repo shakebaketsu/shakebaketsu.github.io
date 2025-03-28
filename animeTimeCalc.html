@@ -20,7 +20,7 @@
 				--key-accent-color: rgb(8, 107, 8);
 				--key-accent-color-active: rgb(7, 82, 7);
 				--key-text-accent-color: rgb(249, 252, 245);
-				/* --font-color: rgb(32, 32, 32); */
+
 				--font-color: rgb(0, 0, 0);
 				--font-color-dark: rgb(0, 0, 0);
 				--font-color-light: rgb(41, 41, 41);
@@ -48,10 +48,7 @@
 
 			html {
 				height: 100%;
-				/* font-size: 1rem; */
 				font-size: var(--default-font-size);
-				/* 長押し時の吹き出し表示禁止 */
-				/* -webkit-touch-callout: none; */
 			}
 
 
@@ -99,18 +96,15 @@
 				height: 100%;
 				/* 通常見えることはない */
 				background-color: var(--base-color-light);
-				/* width: 50em; */
 				display: flex;
 				flex-direction: column;
 			}
 
 			#top-content {
 				/*ダブルタップでの拡大禁止?*/
-				/* height: 300px; */
 				touch-action: pan-y;
 				overflow-x: hidden;
 				overflow-y: scroll;
-				/* background-color: rgb(255, 255, 255); */
 				background-color: var(--listbox-bg-color);
 				flex: 1;
 				display: flex;
@@ -128,7 +122,6 @@
 
 			#safe-area {
 				height: calc(env(safe-area-inset-bottom) * 2.2);
-				/* height: 5rem; */
 				background-color: var(--base-color);
 			}
 
@@ -142,8 +135,6 @@
 
 
 			#menu-button {
-				/* margin: 0.25rem; */
-				/* background-color: rgb(230, 230, 230); */
 				border: none;
 				background-color: var(--menu-button-color);
 				height: 5rem;
@@ -187,7 +178,6 @@
 				/* 文字選択の禁止 */
 				-webkit-user-select: none;
 				user-select: none;
-				/* background-color: transparent; */
 				background-color: var(--dialog-bg-color);
 
 				border: solid 0.1rem var(--content-border-color);
@@ -212,10 +202,7 @@
 					opacity: 0.1;
 				}
 
-				100% {
-					/* transform: translateY(-2rem); */
-					/* opacity: 0.1; */
-				}
+				100% {}
 			}
 
 
@@ -227,14 +214,10 @@
 				top: 6.5rem;
 				background-color: var(--key-color);
 				border-radius: 1rem;
-				/* transition: 5s; */
 				transform-origin: top left;
-				/* animation-fill-mode: forwards; */
 			}
 
 			#menu-dialog[open] {
-				/* animation: none; */
-				/* background-color: red; */
 				animation: scaleIn 0.2s ease-out;
 			}
 
@@ -251,14 +234,10 @@
 				max-width: 80vw;
 				padding: 2rem;
 				font-size: 2.2rem;
-				/* background-color: red; */
 				font-family: -apple-system, sans-serif;
-				/* background-color: var(--dialog-bg-color); */
 				color: var(--font-color-dark);
 				display: flex;
 				flex-direction: column;
-				/* backdrop-filter: blur(5rem);
-				-webkit-backdrop-filter: blur(5rem); */
 			}
 
 			.dialog-content .head {
@@ -283,11 +262,8 @@
 				height: 6rem;
 				border: none;
 				padding: 0 2rem 0 1rem;
-				/* border-radius: 3rem; */
-				/* margin: 0; */
 				font-size: 2.5rem;
 				background-color: var(--key-color);
-				/* background-color: transparent; */
 				color: var(--font-color-dark);
 				text-align: left;
 				font-family: -apple-system, sans-serif;
@@ -305,7 +281,6 @@
 				font-size: 3.5rem;
 				margin: auto 1rem auto 0;
 				color: var(--menu-dialog-icon-color);
-				/* background-color: pink; */
 			}
 
 			.dialog-spacer {
@@ -339,7 +314,6 @@
 			}
 
 			#view-scale::-webkit-slider-runnable-track {
-				/* top: 7vw; */
 				height: 1vw;
 				background-color: var(--slider-track-color);
 				border-radius: 0.5vw;
@@ -348,12 +322,10 @@
 			#view-scale::-webkit-slider-thumb {
 				-webkit-appearance: none;
 				appearance: none;
-				/* cursor: pointer; */
 				background-color: var(--slider-thumb-color);
 				width: 10vw;
 				height: 10vw;
 				border-radius: 50%;
-				/* border: solid 0.1vw var(--key-accent-color-active); */
 				margin-top: -4.75vw;
 				box-shadow: 0 0.4vw 2vw 0 rgba(0, 0, 0, 0.3);
 			}
@@ -398,9 +370,7 @@
 
 			#clear-confirm-dialog span {
 				font-size: 4.5rem;
-				/* margin: auto 1rem auto 0; */
 				margin-bottom: 2rem;
-				/* color: var(--menu-dialog-icon-color); */
 			}
 
 			#hint-dialog .dialog-content {
@@ -409,10 +379,7 @@
 			}
 
 			#hint-dialog span.icon {
-				flex-wrap: wrap;
-				/* width: 3rem; */
 				font-size: 3rem;
-				/* background-color: red; */
 			}
 
 			.modal:focus,
@@ -442,22 +409,9 @@
 				display: none;
 			}
 
-			/* 
-			#top-content-inner {
-				height: 2000rem;
-				background-color: blue;
-				padding-left: 0.5rem;
-			} */
-
 			#list-box {
 				height: auto;
-				/* min-height: 100rem; */
-				/* flex-shrink: 0; */
 				background-color: var(--listbox-bg-color);
-				/* display: flex;
-				flex-direction: column-reverse; */
-				/* padding-left: 0.5rem;
-				background-color: orange; */
 			}
 
 			#list-box .list-item:first-of-type {
@@ -465,13 +419,9 @@
 				border-top: 0.1rem solid var(--list-border-color-dark);
 			}
 
-			/* #list-box .list-item:last-of-type {
-				border-bottom: 0.1rem solid var(--list-border-color-dark);
-			} */
 
 			.list-item {
 				height: 5rem;
-				/* height: 80px; */
 				display: flex;
 				background-color: var(--base-color-light);
 			}
@@ -486,7 +436,6 @@
 			}
 
 			.list-item-index>div {
-				/* background-color: blue; */
 				flex: 1;
 				margin: 0;
 				display: flex;
@@ -500,43 +449,7 @@
 				color: var(--index-text-color);
 			}
 
-			.list-item:last-of-type .list-item-index span {
-				/* font-weight: bold; */
-			}
 
-			.list-end-mark {
-				height: 70%;
-				width: 0.3rem;
-				/* background-color: var(--index-text-color); */
-				margin: auto auto auto 0.2rem;
-				display: none;
-			}
-
-			.list-item:last-of-type .list-end-mark {
-				display: block;
-			}
-
-
-			span.list-end-icon {
-				font-size: 1.5rem;
-				/* width: 3rem; */
-				margin: auto auto auto 0.5rem;
-				/* background-color: pink; */
-				color: rgb(141, 182, 117);
-				/* color: var(--index-text-color); */
-				display: none;
-				font-variation-settings: "FILL" 1;
-			}
-
-			.list-item:last-of-type span.list-end-icon {
-				/* display: block; */
-				/* border-left: double 0.5rem var(--index-text-color); */
-
-			}
-
-			.list-item:last-of-type .list-item-index div {
-				/* border-left: double 0.5rem var(--index-text-color); */
-			}
 
 			.list-item-time {
 				flex: 1;
@@ -550,9 +463,6 @@
 				border-bottom: solid 0.1rem var(--list-border-color-dark);
 			}
 
-			/* .list-item:nth-of-type(2n) .list-item-time {
-				background-color: rgb(245, 245, 245);
-			} */
 
 			.list-item:nth-last-of-type(1) .list-item-time {
 				border-bottom: none;
@@ -565,7 +475,6 @@
 
 			.list-item[data-state="added"] .list-item-time {
 				animation: listTimeHighlight 1s;
-				/* background-color: red; */
 			}
 
 			.list-item[data-state="added"] .list-item-index {
@@ -575,13 +484,9 @@
 			@keyframes listItemHighlight {
 				0% {
 					height: 1rem;
-					/* height: 10px; */
-					/* transform: scaleY(0.1); */
 				}
 
-				100% {
-					/* height: 5rem; */
-				}
+				100% {}
 			}
 
 			@keyframes listTimeHighlight {
@@ -609,8 +514,6 @@
 			.list-item[data-state="removed"] {
 				background-color: var(--removed-item-color);
 				animation: scaleYOut 0.5s ease-out;
-				/* animation: blackOut 0.5s ease-out; */
-				/* z-index: -10; */
 
 			}
 
@@ -626,10 +529,6 @@
 				0% {}
 
 				100% {
-					/* background-color: black; */
-					/* transform: translateX(-100%); */
-					/* opacity: 0.1; */
-					/* transform: scaleY(0); */
 					height: 0;
 				}
 			}
@@ -645,19 +544,8 @@
 			}
 
 
-			/* .list-item[data-state="selected"] .list-item-time {
-				background-color: rgb(255, 227, 135);
-			} */
-
-			.list-item[data-state="edit"] .list-item-time {
-				background-color: rgb(230, 230, 230);
-				border: solid 0.3rem rgb(241, 126, 18);
-			}
-
-			.list-item[data-state="edit"] .list-item-time span {}
 
 			button.item-remove-button {
-				/* background-color: pink; */
 				border: none;
 				margin: auto auto auto 1rem;
 				background-color: transparent;
@@ -666,18 +554,12 @@
 			}
 
 			span.list-item-remove-icon {
-				/* height: 100%; */
 				font-size: 4rem;
 				padding: 0.25rem;
-				/* background-color: rgb(235, 255, 255); */
 				color: var(--item-remove-icon-color);
-				/* display: none; */
-				/* font-variation-settings: "FILL" 1; */
 			}
 
 			.list-item[data-state="selected"] button.item-remove-button {
-				/* background-color: rgb(255, 227, 135); */
-
 				display: block;
 				animation: fadeIn 0.2s ease-out;
 			}
@@ -693,18 +575,15 @@
 			span.list-item-time-inner {
 				font-size: 2.8rem;
 				margin: auto 6rem auto auto;
-				/* background-color: aqua; */
 				color: var(--font-color-light);
 				/* カーニングをオフにしないと等幅の意味がないのでオフにする */
 				font-kerning: none;
-				/* letter-spacing: 0.02em; */
 			}
 
 
 
 			#total-content {
 				position: relative;
-				/* background-color: rgba(135, 233, 176, 0.815); */
 				height: 8rem;
 				display: flex;
 				border-top: solid 0.1rem var(--content-border-color);
@@ -719,7 +598,6 @@
 
 			#input-time,
 			#total-time {
-				/* background-color: aquamarine; */
 				text-align: right;
 				font-size: 6rem;
 				margin: 0.5rem 6rem 0.5rem 0rem;
@@ -727,7 +605,6 @@
 				color: var(--font-color);
 				/* カーニングをオフにしないと等幅の意味がないのでオフにする */
 				font-kerning: none;
-				/* letter-spacing: 0.02em; */
 			}
 
 			#input-time {
@@ -820,7 +697,6 @@
 				font-size: 3.5rem;
 				padding: 0;
 				box-shadow: 0 0 0.2rem 0 rgba(0, 0, 0, 0.5);
-				/* margin: 0.1rem; */
 				color: var(--font-color);
 				transition: background-color 0.3s;
 			}
@@ -908,7 +784,6 @@
 			let isPadDragging = false;
 			let dragStartStateIsOpen = true;
 			let pointerDownPoint = { x: 0, y: 0 };
-			// let pointerUpPoint = { x: 0, y: 0 };
 			let defaultPadHeight;
 			let padDefaultTransition;
 			let currentPointerId = null;
@@ -918,20 +793,10 @@
 			window.onload = function () {
 				for(const ele of document.querySelectorAll("#key-pad button")) {
 					ele.addEventListener("click", inputKey);
-					// console.log(ele.value);
-					// alert(ele.value);
 				}
 
-				// const resizeObserver = new ResizeObserver((entries) => {
-				// 	defaultPadHeight = entries[0].target.clientHeight;
-				// });
-				// resizeObserver.observe(document.getElementById("bottom-content"));
 
 				const resizeObserver = new ResizeObserver((entries) => {
-					console.log("listbox_clientHeight Resized");
-					// const inputElement = document.getElementById("input-time");
-					// inputElement.innerHTML = entries[0].target.clientHeight;
-					// console.log("listbox clientHeight  " + entries[0].target.clientHeight);
 					if(latestListActionIsAdding) {
 						document.getElementById("top-content").scrollTo({ top: -1 });//古いスマホ用。スクロールが効かない事があるので一度0でない値を入れてスクロールを促す
 						document.getElementById("top-content").scrollTo({ top: 0 });
@@ -939,22 +804,6 @@
 				});
 				resizeObserver.observe(document.getElementById("list-box"));
 
-				// const mObserver = new MutationObserver(() => {
-				// 	console.log("listbox is changed");
-				// 	const inputElement = document.getElementById("input-time");
-				// 	inputElement.innerHTML = document.getElementById("list-box").scrollHeight;
-				// 	// console.log("listbox clientHeight  " + entries[0].target.clientHeight);
-				// 	// document.getElementById("top-content").scrollTo({ top: -1 });//古いスマホ用
-				// 	document.getElementById("top-content").scrollTo({ top: 0 });
-				// });
-				// mObserver.observe(document.getElementById("list-box"), { childList: true });
-
-				// document.getElementById("list-box").addEventListener("DOMContentLoaded", () => {
-				// 	console.log("DOMContentLoaded");
-				// 	const inputElement = document.getElementById("input-time");
-				// 	inputElement.innerHTML = document.getElementById("list-box").scrollHeight;
-				// 	document.getElementById("top-content").scrollTo({ top: 0 });
-				// });
 
 				document.getElementById("total-content").addEventListener("click", unselectedListItem);
 				document.getElementById("bottom-content").addEventListener("click", unselectedListItem);
@@ -971,13 +820,10 @@
 				});
 
 				document.getElementById("view-scale").addEventListener("input", (e) => {
-					// document.querySelector("html").style.fontSize = 2.1 * (Number(e.target.value) / 100) + "vw";
 					document.querySelector(":root").style.setProperty("--default-font-size", 2.1 * (Number(e.target.value) / 100) + "vw")
 					document.getElementById("view-scale-percent").innerText = e.target.value + "%";
 					localStorage.setItem("animeTimeCalc_viewScale", e.target.value);
-					// defaultPadHeight = document.getElementById("bottom-content").clientHeight;
 					updateDefaultPadHeight();
-					console.log(e);
 				});
 				document.getElementById("view-scale-reset-button").addEventListener("click", () => {
 					const viewScale = document.getElementById("view-scale");
@@ -986,7 +832,6 @@
 				});
 				document.getElementById("view-scale-ok-button").addEventListener("click", () => {
 					document.getElementById("setting-dialog").close();
-					// defaultPadHeight = document.getElementById("bottom-content").clientHeight;
 				});
 
 
@@ -1027,17 +872,10 @@
 
 
 				document.getElementById("top-content").addEventListener("scroll", listScrolled);
-				document.getElementById("top-content").addEventListener("scrollend", () => {
-					console.log("scroll end");
-					console.log("end_scrollTop " + document.getElementById("top-content").scrollTop);
-					console.log("end_scrollHeight " + document.getElementById("top-content").scrollHeight);
-					// document.getElementById("top-content").scrollTo({ top: 1000, behavior: "smooth" });
-				});
 
 				padDefaultTransition = document.getElementById("bottom-content").style.transition;
-				// defaultPadHeight = document.getElementById("bottom-content").clientHeight;
 				updateDefaultPadHeight();
-				console.log("onload " + document.getElementById("bottom-content").clientHeight);
+
 				updateTotal();
 
 
@@ -1056,20 +894,12 @@
 				updateListBox();
 				updateTotal();
 
-				// document.getElementById("list-box").style.height = "2000px";
 			}
 
 
 			function openMenu() {
 				const dialog = document.getElementById("menu-dialog");
 				dialog.showModal();
-				// dialog.animate(
-				// 	[
-				// 		{ transform: "scale(0.2)", easing: "ease-out" },
-				// 		{ transform: "scale(1)" }
-				// 	]
-				// 	, 200
-				// );
 			}
 
 			function closeMenu() {
@@ -1079,19 +909,9 @@
 
 			function openDialogElement(element) {
 				element.showModal();
-				// element.animate(
-				// 	[
-				// 		{ transform: "translateY(-2rem)", opacity: "0.1", backdropFilter: "blur(1rem)", easing: "ease-out" },
-				// 		{ transform: "translateY(0)", opacity: "1", backdropFilter: "blur(5rem)" }
-				// 	]
-				// 	, 200
-				// );
 			}
 
 			function closeDialog(e) {
-				// if(e.target.id == "setting-dialog") {
-				// 	defaultPadHeight = document.getElementById("bottom-content").clientHeight;
-				// }
 				if(e.target.classList.contains("modal")) {//背景をクリックするとdialog要素のイベントが発火するので、それを利用して閉じる
 					e.target.close();
 				}
@@ -1103,7 +923,6 @@
 			/* //////////// スワイプ&マウスドラッグに対応したキーパッドスライド処理 //////////// */
 
 			function padPointerDown(e) {
-				console.log("pointerDown");
 				isPointerDownedInList = false;
 
 				const content = document.getElementById("bottom-content");
@@ -1127,7 +946,7 @@
 			function padPointerMove(e) {
 				if(isPadDragging) {
 					if(currentPointerId !== null && e.pointerId != currentPointerId) return;
-					// document.getElementById("input-time").innerHTML = e.clientX;
+
 					let tmpHeight;
 
 					if(dragStartStateIsOpen) {
@@ -1141,7 +960,6 @@
 					}
 
 					document.getElementById("bottom-content").style.height = tmpHeight + "px";
-					console.log(tmpHeight);
 				}
 			}
 
@@ -1171,12 +989,9 @@
 						}
 
 					}
-					// pointerUpPoint = { x: e.clientX, y: e.clientY };
-					// document.getElementById("total-time").innerHTML = pointerUpPoint.x + "," + pointerUpPoint.y;
 
 					e.target.releasePointerCapture(e.pointerId);
 					currentPointerId = null;
-					console.log("pointerUp");
 				}
 			}
 
@@ -1219,13 +1034,8 @@
 				const key = e.target.value;
 				const inputElement = document.getElementById("input-time");
 				const inputedString = inputElement.innerText;
-				console.log(e.target.value);
 				switch(key) {
 					case "0":
-						// const its = document.querySelectorAll(".list-item");
-						// its[its.length - 1].dataset.state = "added";
-						// console.log(its[its.length - 1].dataset.state);
-						// document.getElementById("top-content").scrollTo({ top: 0 });
 						if(inputedString == "0") {
 							animateToNotification();
 							break;
@@ -1239,7 +1049,6 @@
 					case "7":
 					case "8":
 					case "9":
-						// later = key;
 						if(inputedString == "0") { //入力されてる文字が"0"のみのとき、それを上書きして数字を代入
 							inputElement.innerHTML = key;
 							break;
@@ -1301,33 +1110,15 @@
 						timeArray.push(koma);
 
 						localStorage.setItem("animeTimeCalc_timeArray", timeArray);
-						// document.getElementById("top-content").style.overflowY = "hidden";
-						// document.getElementById("top-content").scrollTo({ top: -1 });
 
 						updateListBox();
 						latestListActionIsAdding = true;
 
 						inputElement.innerHTML = "";
-						// items[items.length - 1].scrollIntoView();
 						const items = document.querySelectorAll(".list-item");
 						items[items.length - 1].dataset.state = "added";
 
-						// items[items.length - 1].addEventListener("DOMContentLoaded", () => {
-						// 	console.log("DOMContentLoaded");
-						// 	const inputElement = document.getElementById("input-time");
-						// 	inputElement.innerHTML = document.getElementById("list-box").scrollHeight;
-						// 	document.getElementById("top-content").scrollTo({ top: 0 });
-						// });
-
-						// setTimeout(() => {
-						// 	document.getElementById("scroll-target").scrollIntoView({ behavior: "smooth" });
-						// }, 200);
-						// items[items.length - 1].scrollIntoView({ behavior: "smooth" });
-						// if(document.getElementById("top-content").scrollTop <= -1) {//スクロールが一番下にないときだけスクロールさせる。不要なスクロール処理は表示の不具合につながるため。
-						// document.getElementById("top-content").scrollTo({ top: 0, behavior: "smooth" });
-						// document.getElementById("top-content").scrollTo({ top: -1 });
 						document.getElementById("top-content").scrollTo({ top: 0 });
-						// }
 
 						break;
 				}
@@ -1345,14 +1136,11 @@
 					]
 					, 140
 				);
-				console.log("animation");
 			}
 
 			function listScrolled(e) {
-				console.log("scrollTop " + e.target.scrollTop);
 				//スクロールが一番下に来ているとき値は、-1～1になる?。上に行くとマイナスの値になる。flex-directionに依ると思われる。
 
-				console.log("scrollHeight " + e.target.scrollHeight + "  clientHeight " + e.target.clientHeight);
 				if(e.target.scrollTop >= -1) {//一番下に来ているとき
 					document.getElementById("top-content-shadow").style.display = "none";
 				} else {
@@ -1373,12 +1161,9 @@
 			}
 
 			function clickListItem(e) {
-				// document.getElementById("input-time").innerHTML = isPointerDownedInList;
-				console.log("clickListItem");
 				if(!isPointerDownedInList) {//safariだとキーパッドをスライドして下げたときに、リストボックスにクリックイベントが渡ることがあるので判定。
 					return;
 				}
-				// console.log("target  " + e.target);
 				if(e.currentTarget.dataset.state == "removed") return;
 
 				e.stopPropagation();//リスト要素以外をクリックしたイベントをdocumentで処理するので、このイベントはdocumentに渡らないようにバブリングを止める
@@ -1400,7 +1185,6 @@
 			}
 
 			function updateListBox() {
-				// let selectedIndex = -1;
 
 				let htmlText = "";
 				timeArray.forEach((komaValue, index) => {
@@ -1412,7 +1196,6 @@
 				document.getElementById("list-box").innerHTML = htmlText;
 				updateTotal();
 
-				// document.getElementById("top-content").style.overflowY = "scroll";
 
 
 				const items = document.querySelectorAll(".list-item");
@@ -1421,16 +1204,11 @@
 						isPointerDownedInList = true;
 					});
 					item.addEventListener("click", clickListItem);
-					// item.addEventListener("blur", (e) => {
-					// 	console.log("blur event");
-					// 	e.currentTarget.dataset.state = "normal";
-					// });
 				}
 
 				const removeButtons = document.querySelectorAll(".item-remove-button");
 				for(const item of removeButtons) {
 					item.addEventListener("click", (e) => {//リストアイテム削除関数
-						console.log(e.currentTarget.dataset.index);
 						const removeTarget = document.querySelector('.list-item[data-index="' + e.currentTarget.dataset.index + '"]');
 						removeTarget.dataset.state = "removed";
 						removeTarget.addEventListener("animationend", () => {//削除アニメーションが完了したときに実行される関数
@@ -1448,24 +1226,16 @@
 							}
 						});
 
-						console.log(removeTarget);
 						timeArray.splice(e.currentTarget.dataset.index, 1);//データの削除
 
-						//updateListBox()
 						latestListActionIsAdding = false;
 						localStorage.setItem("animeTimeCalc_timeArray", timeArray);
 
 					});
-					// item.addEventListener("blur", (e) => {
-					// 	console.log("blur event");
-					// 	e.currentTarget.dataset.state = "normal";
-					// });
 				}
 			}
 
 			function unselectedListItem() {
-
-				console.log("unselectedListItem");
 				const items = document.querySelectorAll(".list-item");
 				for(const item of items) {
 					if(item.dataset.state == "selected") item.dataset.state = "normal";
@@ -1482,7 +1252,6 @@
 
 			function updateDefaultPadHeight() {
 				defaultPadHeight = Math.round(Number(getComputedStyle(document.documentElement).fontSize.replace("px", "")) * 38);
-				console.log("defaultPadHeight: " + defaultPadHeight);
 			}
 
 		</script>
@@ -1578,10 +1347,7 @@
 				</span>
 			</button>
 			<div id="top-content">
-				<!-- <div id="scroll-target">a</div> -->
-				<!-- <div id="top-content-inner"> -->
 				<div id="list-box"></div>
-				<!-- </div> -->
 			</div>
 			<div id="total-content">
 				<div id="top-content-shadow"></div>
