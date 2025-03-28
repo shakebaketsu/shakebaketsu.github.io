@@ -792,7 +792,7 @@
 
 			window.onload = function () {
 				for(const ele of document.querySelectorAll("#key-pad button")) {
-					ele.addEventListener("click", inputKey);
+					ele.addEventListener("pointerup", inputKey);//複数のボタンを同時にタッチしている時間があっても反応できるように、clickイベントは使わない。
 				}
 
 
