@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Type Particle Simulation - Perfect Elasticity</title>
+    <!-- Tailwind CSS for high fidelity premium layout styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #090d16;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Prevent body scroll to keep app solid */
+        }
+        canvas {
+            background-color: #000000;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.05);
+            touch-action: none;
+        }
+        /* Custom Premium Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            margin-top: -5px;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #1e293b;
+            border-radius: 3px;
+            border: 1px solid #334155;
+        }
+        .type-bar {
+            transition: width 0.3s ease;
+        }
+        /* Custom scrollbar for stats and matchup lists */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col lg:flex-row p-4 gap-6 overflow-hidden">
+
+    <!-- Left / Center Main Stage (Simulation Canvas) -->
+    <div class="flex-1 flex flex-col items-center justify-center min-h-0 min-w-0">
+        <div id="stage-container" class="w-full max-w-full aspect-square relative border-4 border-slate-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300">
+            <canvas id="stage" class="absolute top-0 left-0 w-full h-full"></canvas>
+            
+            <!-- Start Overlay -->
+            <div id="start-overlay" class="absolute inset-0 bg-slate-950/80 flex items-center justify-center z-10 backdrop-blur-sm">
+                <button id="btn-start" class="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full shadow-lg transform transition hover:scale-105 text-xl">
+                    シミュレーション開始
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLUMN 1 & 2 Container: Slimmed to lg:w-[680px] to make Stage wider -->
+    <div id="sidebar" class="w-full lg:w-[680px] flex flex-col md:flex-row gap-6 h-full lg:max-h-full transition-all duration-300 min-h-0 min-w-0">
+        
+        <!-- COLUMN 1: Stats & Leaderboard (Narrower & Cleaner) -->
+        <div id="stats-column" class="flex-1 flex flex-col bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl min-h-[250px] md:min-h-0 max-h-[45vh] lg:max-h-full overflow-hidden transition-all duration-300">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3 shrink-0">
+                <h2 class="text-md font-bold text-slate-300 flex items-center gap-2">
+                    <span>📊 勢力図 (生存数)</span>
+                </h2>
+            </div>
+            <div id="stats-container" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                <!-- Stat bars injected by JS dynamically -->
+            </div>
+        </div>
+
+        <!-- COLUMN 2: Parameters & Explanation (Now 360px wide - 90% of original) -->
+        <div id="parameter-column" class="w-full md:w-[315px] lg:w-[360px] flex flex-col bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-h-[45vh] lg:max-h-full transition-all duration-300 relative group shrink-0">
+            
+            <!-- Collapse Handle Button on the Left Edge of Param Column -->
+            <button id="btn-toggle-param" class="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-16 bg-indigo-600 hover:bg-indigo-500 text-white rounded-l-md flex items-center justify-center border border-indigo-500 shadow-lg cursor-pointer z-30 transition-all" title="パラメータ開閉">
+                <span id="toggle-param-icon" class="text-xs font-bold">➔</span>
+            </button>
+
+            <!-- Mini controls (visible only when collapsed) -->
+            <div id="mini-controls" class="hidden flex-col gap-4 w-full items-center mb-4">
+                <button id="btn-play-pause-mini" class="w-8 h-8 flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 rounded-lg shadow-md text-white text-[14px] transition-all" title="一時停止 / 再開">
+                    <span id="play-pause-icon-mini">▶</span>
+                </button>
+                <button id="btn-reset-mini" class="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg shadow-md text-white text-[14px] transition-all" title="リセット / シャッフル">
+                    🔄
+                </button>
+            </div>
+
+            <!-- Wrap Content to hide easily when collapsed -->
+            <div id="parameter-content" class="h-full flex flex-col gap-4 overflow-y-auto pr-1">
+                <div>
+                    <h1 class="text-2xl font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">Type Wars 2.0</h1>
+                    <p class="text-xs text-slate-400">完全弾性物理演算 × 18タイプ相性 (with Gemini)</p>
+                </div>
+
+                <!-- Parameters Section -->
+                <div class="space-y-4">
+                    <h2 class="text-md font-bold text-slate-300 border-b border-slate-800 pb-2 flex items-center gap-2">
+                        <span>⚙️ パラメータ設定</span>
+                    </h2>
+                    
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-xs font-semibold text-slate-400">円の総数 (N)</label>
+                            <span id="val-count" class="text-xs text-sky-400 font-mono">350</span>
+                        </div>
+                        <input type="range" id="input-count" min="10" max="600" value="350" step="10">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-xs font-semibold text-slate-400">基本速度 (Speed)</label>
+                            <span id="val-speed" class="text-xs text-sky-400 font-mono">1.0</span>
+                        </div>
+                        <input type="range" id="input-speed" min="0.5" max="15.0" value="1.0" step="0.1">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-xs font-semibold text-slate-400">円の半径 (Radius)</label>
+                            <span id="val-radius" class="text-xs text-sky-400 font-mono">4.0</span>
+                        </div>
+                        <input type="range" id="input-radius" min="3.0" max="25.0" value="4.0" step="0.1">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-xs font-semibold text-slate-400">基本HP (Base HP)</label>
+                            <span id="val-base-hp" class="text-xs text-sky-400 font-mono">150</span>
+                        </div>
+                        <input type="range" id="input-base-hp" min="100" max="1000" value="150" step="25">
+                    </div>
+
+                    <!-- Pause/Play and Reset Buttons Grid -->
+                    <div class="flex gap-3 pt-1">
+                        <button id="btn-play-pause" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl border border-emerald-500 transition active:scale-95 text-xs text-white flex items-center justify-center gap-1.5 shadow-md">
+                            <span id="play-pause-icon">⏸</span> <span id="play-pause-text">一時停止</span>
+                        </button>
+                        <button id="btn-reset" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 font-bold rounded-xl border border-slate-700 transition active:scale-95 text-xs text-slate-200">
+                            リセット / シャッフル
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Battle Rules Explanation & Matchup Table Trigger -->
+                <div class="border-t border-slate-800 pt-3 space-y-3">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                        <span>⚔️ ダメージと繁殖の仕様</span>
+                    </h3>
+                    <div class="text-[11px] text-slate-300 space-y-1.5 bg-slate-950/40 p-3 rounded-xl border border-slate-800/80">
+                        <p class="font-medium text-slate-400 leading-relaxed">衝突時、お互いの相性に応じてダメージが発生します：</p>
+                        <ul class="space-y-1 pl-1">
+                            <li class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span>効果は抜群 (x2.0): <strong class="text-emerald-400">● 100</strong> ダメージ</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                <span>通常効果 (x1.0): <strong class="text-slate-300">50</strong> ダメージ</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                <span>効果はいまひとつ (x0.5): <strong class="text-amber-400">▲ 25</strong> ダメージ</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                <span>効果なし (x0.0): <strong class="text-rose-400">✕ 0</strong> ダメージ</span>
+                            </li>
+                        </ul>
+                        <p class="text-slate-400 text-[10px] leading-relaxed mt-2 border-t border-slate-900 pt-2">
+                            相手のHPをゼロにした円は、相手のタイプを自身のタイプで上書きし、HPを初期値にリセット（繁殖）させます。
+                        </p>
+                    </div>
+
+                    <!-- Matchup Table Button Trigger -->
+                    <button id="btn-open-matchup" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl text-xs text-white transition active:scale-95 shadow-md flex items-center justify-center gap-1.5 border border-indigo-500/20">
+                        <span>🔍 タイプ相性表を開く</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Type Matchup Modal - 90% Semi-Transparent and Positioned at Bottom-Right -->
+    <div id="modal-matchup" class="hidden fixed inset-0 bg-transparent flex items-end justify-end z-50 p-6 transition-all duration-200 pointer-events-none">
+        <!-- Make inner modal interactive but keep background click-through -->
+        <div class="w-full max-w-[700px] bg-slate-900/90 border-2 border-slate-700/80 rounded-2xl shadow-2xl flex flex-col overflow-hidden pointer-events-auto">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-950/70">
+                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                    <span>⚔️ タイプ相性表 (正方形グリッド)</span>
+                </h3>
+                <button id="btn-close-matchup" class="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body (Optimized for perfect square ratio with gridlines) -->
+            <div class="p-3 flex flex-col items-center justify-center overflow-auto max-h-[75vh]">
+                <div class="border-2 border-slate-700 rounded-xl overflow-hidden bg-slate-950/80 p-1 shadow-inner">
+                    <table id="matchup-table" class="table-fixed text-center border-collapse border-spacing-0">
+                        <!-- Dynamic JavaScript Table Generation with Vertical Labels and grids -->
+                    </table>
+                </div>
+                
+                <!-- Legend / Explanatory footer inside modal -->
+                <div class="w-full mt-3 flex flex-wrap justify-between items-center text-[10px] text-slate-400 gap-1 border-t border-slate-800/80 pt-2 px-1">
+                    <div class="flex flex-wrap gap-2.5">
+                        <span class="flex items-center gap-1">
+                            <span class="text-emerald-400 font-extrabold text-xs">●</span> 抜群 (100)
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <span class="text-slate-600 text-[10px]">[空欄]</span> 通常 (50)
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <span class="text-amber-500 font-extrabold text-xs">▲</span> 今ひとつ (25)
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <span class="text-rose-500 font-extrabold text-xs">✕</span> 無効 (0)
+                        </span>
+                    </div>
+                    <span class="font-medium text-slate-500 text-right">※ 縦軸：攻撃側 ➔ 横軸：防御側 (縦書き)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TYPES = {
+            Normal: { id: 'Normal', name: 'ノーマル', color: '#A8A77A' },
+            Fire: { id: 'Fire', name: 'ほのお', color: '#EE8130' },
+            Water: { id: 'Water', name: 'みず', color: '#6390F0' },
+            Electric: { id: 'Electric', name: 'でんき', color: '#F7D02C' },
+            Grass: { id: 'Grass', name: 'くさ', color: '#7AC74C' },
+            Ice: { id: 'Ice', name: 'こおり', color: '#96D9D6' },
+            Fighting: { id: 'Fighting', name: 'かくとう', color: '#C22E28' },
+            Poison: { id: 'Poison', name: 'どく', color: '#A33EA1' },
+            Ground: { id: 'Ground', name: 'じめん', color: '#E2BF65' },
+            Flying: { id: 'Flying', name: 'ひこう', color: '#A98FF3' },
+            Psychic: { id: 'Psychic', name: 'エスパー', color: '#F95587' },
+            Bug: { id: 'Bug', name: 'むし', color: '#A6B91A' },
+            Rock: { id: 'Rock', name: 'いわ', color: '#B6A136' },
+            Ghost: { id: 'Ghost', name: 'ゴースト', color: '#735797' },
+            Dragon: { id: 'Dragon', name: 'ドラゴン', color: '#6F35FC' },
+            Dark: { id: 'Dark', name: 'あく', color: '#705746' },
+            Steel: { id: 'Steel', name: 'はがね', color: '#B7B7CE' },
+            Fairy: { id: 'Fairy', name: 'フェアリー', color: '#D685AD' }
+        };
+
+        const TYPE_KEYS = Object.keys(TYPES);
+
+        // Type matchup matrix
+        const TYPE_MATCHUP = {
+            Normal: { Rock: 0.5, Ghost: 0, Steel: 0.5 },
+            Fire: { Fire: 0.5, Water: 0.5, Grass: 2, Ice: 2, Bug: 2, Rock: 0.5, Dragon: 0.5, Steel: 2 },
+            Water: { Fire: 2, Water: 0.5, Grass: 0.5, Ground: 2, Rock: 2, Dragon: 0.5 },
+            Electric: { Water: 2, Electric: 0.5, Grass: 0.5, Ground: 0, Flying: 2, Dragon: 0.5 },
+            Grass: { Fire: 0.5, Water: 2, Grass: 0.5, Poison: 0.5, Ground: 2, Flying: 0.5, Bug: 0.5, Rock: 2, Dragon: 0.5, Steel: 0.5 },
+            Ice: { Fire: 0.5, Water: 0.5, Grass: 2, Ice: 0.5, Ground: 2, Flying: 2, Dragon: 2, Steel: 0.5 },
+            Fighting: { Normal: 2, Ice: 2, Poison: 0.5, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 2, Ghost: 0, Dark: 2, Steel: 2, Fairy: 0.5 },
+            Poison: { Grass: 2, Poison: 0.5, Ground: 0.5, Rock: 0.5, Ghost: 0.5, Steel: 0, Fairy: 2 },
+            Ground: { Fire: 2, Electric: 2, Grass: 0.5, Poison: 2, Flying: 0, Bug: 0.5, Rock: 2, Steel: 2 },
+            Flying: { Electric: 0.5, Grass: 2, Fighting: 2, Bug: 2, Rock: 0.5, Steel: 0.5 },
+            Psychic: { Fighting: 2, Poison: 2, Psychic: 0.5, Dark: 0, Steel: 0.5 },
+            Bug: { Fire: 0.5, Grass: 2, Fighting: 0.5, Poison: 0.5, Flying: 0.5, Psychic: 2, Ghost: 0.5, Dark: 2, Steel: 0.5, Fairy: 0.5 },
+            Rock: { Fire: 2, Ice: 2, Fighting: 0.5, Ground: 0.5, Flying: 2, Bug: 2, Steel: 0.5 },
+            Ghost: { Normal: 0, Psychic: 2, Ghost: 2, Dark: 0.5 },
+            Dragon: { Dragon: 2, Steel: 0.5, Fairy: 0 },
+            Dark: { Fighting: 0.5, Psychic: 2, Ghost: 2, Dark: 0.5, Fairy: 0.5 },
+            Steel: { Fire: 0.5, Water: 0.5, Electric: 0.5, Ice: 2, Rock: 2, Steel: 0.5, Fairy: 2 },
+            Fairy: { Fire: 0.5, Fighting: 2, Poison: 0.5, Dragon: 2, Dark: 2, Steel: 0.5 }
+        };
+
+        const canvas = document.getElementById('stage');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        
+        let width = 0;
+        let height = 0;
+        
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            
+            let w = rect.width;
+            let h = rect.height;
+            if (w < 100 || h < 100) {
+                w = canvas.parentElement.offsetWidth || 800;
+                h = canvas.parentElement.offsetHeight || 800;
+            }
+            
+            canvas.width = w * dpr;
+            canvas.height = h * dpr;
+            ctx.scale(dpr, dpr);
+            width = w;
+            height = h;
+        }
+
+        let particles = [];
+        let isRunning = false;
+        let isParamOpen = true; 
+        let animationId;
+
+        let config = {
+            count: 350,
+            baseSpeed: 1.0,
+            radius: 4.0,
+            baseHp: 150
+        };
+
+        function calculateDamage(attackerType, defenderType) {
+            let multiplier = 1.0;
+            if (TYPE_MATCHUP[attackerType] && TYPE_MATCHUP[attackerType][defenderType] !== undefined) {
+                multiplier = TYPE_MATCHUP[attackerType][defenderType];
+            }
+            
+            if (multiplier === 2) return 100;
+            if (multiplier === 1) return 50;
+            if (multiplier === 0.5) return 25;
+            if (multiplier === 0) return 0;
+            return 50; 
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < config.count; i++) {
+                particles.push(createParticle());
+            }
+            updateStatsUI();
+        }
+
+        function createParticle(overrideType = null) {
+            const r = config.radius;
+            const x = r + Math.random() * (Math.max(100, width) - 2 * r);
+            const y = r + Math.random() * (Math.max(100, height) - 2 * r);
+            
+            const angle = Math.random() * Math.PI * 2;
+            const vx = Math.cos(angle) * config.baseSpeed;
+            const vy = Math.sin(angle) * config.baseSpeed;
+            
+            const type = overrideType || TYPE_KEYS[Math.floor(Math.random() * TYPE_KEYS.length)];
+            
+            return { x, y, vx, vy, type, hp: config.baseHp };
+        }
+
+        function updatePositions() {
+            const r = config.radius;
+            
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i];
+                
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x - r < 0) {
+                    p.x = r;
+                    p.vx = Math.abs(p.vx);
+                } else if (p.x + r > width) {
+                    p.x = width - r;
+                    p.vx = -Math.abs(p.vx);
+                }
+
+                if (p.y - r < 0) {
+                    p.y = r;
+                    p.vy = Math.abs(p.vy);
+                } else if (p.y + r > height) {
+                    p.y = height - r;
+                    p.vy = -Math.abs(p.vy);
+                }
+            }
+        }
+
+        function handleCollisions() {
+            particles.sort((a, b) => a.x - b.x);
+            
+            const r = config.radius;
+            const diameter = r * 2;
+            const diameterSq = diameter * diameter;
+
+            for (let i = 0; i < particles.length; i++) {
+                let p1 = particles[i];
+                
+                for (let j = i + 1; j < particles.length; j++) {
+                    let p2 = particles[j];
+                    
+                    if (p2.x - p1.x > diameter) break;
+                    if (Math.abs(p2.y - p1.y) > diameter) continue;
+
+                    let dx = p2.x - p1.x;
+                    let dy = p2.y - p1.y;
+                    let distSq = dx * dx + dy * dy;
+
+                    if (distSq < diameterSq && distSq > 0) {
+                        resolveCollision(p1, p2, dx, dy, distSq);
+                    }
+                }
+            }
+        }
+
+        function resolveCollision(p1, p2, dx, dy, distSq) {
+            const dist = Math.sqrt(distSq);
+            const r = config.radius;
+            
+            const overlap = (r * 2 - dist);
+            const nx = dx / dist; 
+            const ny = dy / dist; 
+            
+            p1.x -= nx * overlap * 0.5;
+            p1.y -= ny * overlap * 0.5;
+            p2.x += nx * overlap * 0.5;
+            p2.y += ny * overlap * 0.5;
+
+            const rvx = p2.vx - p1.vx;
+            const rvy = p2.vy - p1.vy;
+            const velAlongNormal = rvx * nx + rvy * ny;
+
+            if (velAlongNormal > 0) return;
+
+            const J = -velAlongNormal;
+
+            p1.vx -= J * nx;
+            p1.vy -= J * ny;
+            p2.vx += J * nx;
+            p2.vy += J * ny;
+
+            resolveBattle(p1, p2);
+        }
+
+        function resolveBattle(p1, p2) {
+            const dmgToP2 = calculateDamage(p1.type, p2.type);
+            const dmgToP1 = calculateDamage(p2.type, p1.type);
+
+            p2.hp -= dmgToP2;
+            p1.hp -= dmgToP1;
+
+            const p1Defeated = p1.hp <= 0;
+            const p2Defeated = p2.hp <= 0;
+
+            const originalP1Type = p1.type;
+            const originalP2Type = p2.type;
+
+            if (p1Defeated && !p2Defeated) {
+                p1.type = originalP2Type;
+                p1.hp = config.baseHp;
+            } else if (p2Defeated && !p1Defeated) {
+                p2.type = originalP1Type;
+                p2.hp = config.baseHp;
+            } else if (p1Defeated && p2Defeated) {
+                p1.type = originalP2Type;
+                p1.hp = config.baseHp;
+                p2.type = originalP1Type;
+                p2.hp = config.baseHp;
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, width, height);
+
+            const r = config.radius;
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const typeData = TYPES[p.type];
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+                ctx.fillStyle = typeData.color;
+                ctx.fill();
+                
+                const hpRatio = Math.max(0, p.hp) / config.baseHp;
+                let holeRadius = r * (1 - hpRatio);
+                
+                holeRadius = Math.min(holeRadius, r * 0.8);
+
+                if (holeRadius > 0.1) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, holeRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#000000';
+                    ctx.fill();
+                }
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+                ctx.stroke();
+            }
+        }
+
+        let lastStatsUpdate = 0;
+        function updateStatsUI(timestamp = 0) {
+            if (timestamp - lastStatsUpdate < 150) return;
+            lastStatsUpdate = timestamp;
+
+            const counts = {};
+            TYPE_KEYS.forEach(k => counts[k] = 0);
+            
+            for (let i = 0; i < particles.length; i++) {
+                counts[particles[i].type]++;
+            }
+
+            const sortedTypes = TYPE_KEYS.map(k => ({
+                id: k,
+                count: counts[k],
+                data: TYPES[k]
+            })).sort((a, b) => b.count - a.count);
+
+            const container = document.getElementById('stats-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            sortedTypes.forEach((item, index) => {
+                if (item.count === 0) return; 
+
+                const percentage = ((item.count / config.count) * 100).toFixed(1);
+                
+                const div = document.createElement('div');
+                div.className = 'w-full mb-1 relative';
+                
+                const bgDiv = document.createElement('div');
+                bgDiv.className = 'w-full h-7 bg-slate-950 rounded-lg overflow-hidden relative flex items-center border border-slate-800';
+                
+                const fillDiv = document.createElement('div');
+                fillDiv.className = 'absolute top-0 left-0 h-full type-bar opacity-70';
+                fillDiv.style.width = `${percentage}%`;
+                fillDiv.style.backgroundColor = item.data.color;
+                
+                const textDiv = document.createElement('div');
+                textDiv.className = 'relative z-10 flex justify-between w-full px-3 text-xs font-bold text-white';
+                textDiv.style.textShadow = '1px 1px 2px rgba(0,0,0,0.9)';
+                
+                const rankSpan = document.createElement('span');
+                rankSpan.textContent = `${index + 1}. ${item.data.name}`;
+                
+                const countSpan = document.createElement('span');
+                countSpan.textContent = `${item.count} (${percentage}%)`;
+
+                textDiv.appendChild(rankSpan);
+                textDiv.appendChild(countSpan);
+                bgDiv.appendChild(fillDiv);
+                bgDiv.appendChild(textDiv);
+                div.appendChild(bgDiv);
+                
+                container.appendChild(div);
+            });
+        }
+
+        function gameLoop(timestamp) {
+            if (!isRunning) return;
+
+            updatePositions();
+            handleCollisions();
+            draw();
+            updateStatsUI(timestamp);
+
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        const inputCount = document.getElementById('input-count');
+        const inputSpeed = document.getElementById('input-speed');
+        const inputRadius = document.getElementById('input-radius');
+        const inputBaseHp = document.getElementById('input-base-hp');
+        
+        const valCount = document.getElementById('val-count');
+        const valSpeed = document.getElementById('val-speed');
+        const valRadius = document.getElementById('val-radius');
+        const valBaseHp = document.getElementById('val-base-hp');
+
+        inputCount.addEventListener('input', (e) => {
+            const newCount = parseInt(e.target.value);
+            valCount.textContent = newCount;
+            
+            if (newCount > particles.length) {
+                const diff = newCount - particles.length;
+                for (let i = 0; i < diff; i++) {
+                    particles.push(createParticle());
+                }
+            } else if (newCount < particles.length) {
+                particles.splice(newCount);
+            }
+            config.count = newCount;
+            if (!isRunning) draw();
+        });
+
+        inputSpeed.addEventListener('input', (e) => {
+            const newSpeed = parseFloat(e.target.value);
+            valSpeed.textContent = newSpeed.toFixed(1);
+            
+            const ratio = newSpeed / config.baseSpeed;
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].vx *= ratio;
+                particles[i].vy *= ratio;
+            }
+            config.baseSpeed = newSpeed;
+            if (!isRunning) draw();
+        });
+
+        inputRadius.addEventListener('input', (e) => {
+            const newRadius = parseFloat(e.target.value);
+            config.radius = newRadius;
+            valRadius.textContent = newRadius.toFixed(1);
+            if (!isRunning) draw(); 
+        });
+
+        inputBaseHp.addEventListener('input', (e) => {
+            const newBaseHp = parseInt(e.target.value);
+            valBaseHp.textContent = newBaseHp;
+            
+            const hpRatio = newBaseHp / config.baseHp;
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].hp = Math.max(1, particles[i].hp * hpRatio);
+            }
+            config.baseHp = newBaseHp;
+            if (!isRunning) draw();
+        });
+
+        function generateMatchupTable() {
+            const table = document.getElementById('matchup-table');
+            if (!table) return;
+
+            let html = '<thead><tr class="bg-slate-900 border-b border-slate-700">';
+            html += `<th class="p-1 text-[10px] md:text-[11px] font-bold text-slate-400 sticky top-0 left-0 bg-slate-950 z-20 w-[60px] md:w-[70px] h-[80px] md:h-[90px] border border-slate-700 text-center leading-tight">＼防御<br>攻撃＼</th>`;
+            
+            TYPE_KEYS.forEach(k => {
+                const t = TYPES[k];
+                html += `<th class="p-0 text-[10px] md:text-[11px] font-bold text-center sticky top-0 bg-slate-900 z-10 w-[24px] md:w-[28px] h-[80px] md:h-[90px] border border-slate-700" style="color: ${t.color}">
+                    <div class="flex items-center justify-center h-full w-full">
+                        <span class="inline-block [writing-mode:vertical-rl] select-none text-center">${t.name}</span>
+                    </div>
+                </th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            TYPE_KEYS.forEach(atk => {
+                const tAtk = TYPES[atk];
+                html += `<tr><td class="p-1 text-[10px] md:text-xs font-bold sticky left-0 bg-slate-950 z-10 whitespace-nowrap text-left pl-2 border border-slate-700 w-[60px] md:w-[70px] h-[24px] md:h-[28px]" style="color: ${tAtk.color}">${tAtk.name}</td>`;
+                
+                TYPE_KEYS.forEach(def => {
+                    let mult = 1.0;
+                    if (TYPE_MATCHUP[atk] && TYPE_MATCHUP[atk][def] !== undefined) {
+                        mult = TYPE_MATCHUP[atk][def];
+                    }
+
+                    let cellClass = "bg-slate-950/30 text-slate-500";
+                    let symbolText = ""; 
+                    
+                    if (mult === 2) {
+                        cellClass = "bg-emerald-950/40 text-emerald-400 font-extrabold text-xs md:text-sm";
+                        symbolText = "●";
+                    } else if (mult === 0.5) {
+                        cellClass = "bg-amber-950/40 text-amber-500 font-bold text-xs md:text-sm";
+                        symbolText = "▲";
+                    } else if (mult === 0) {
+                        cellClass = "bg-rose-950/40 text-rose-500 font-extrabold text-xs md:text-sm";
+                        symbolText = "✕";
+                    }
+
+                    html += `<td class="p-0 text-center transition hover:bg-slate-800/40 border border-slate-700 w-[24px] h-[24px] md:w-[28px] md:h-[28px] ${cellClass}" title="${tAtk.name} ➔ ${TYPES[def].name}: x${mult}">${symbolText}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+
+        const modal = document.getElementById('modal-matchup');
+        document.getElementById('btn-open-matchup').addEventListener('click', () => {
+            modal.classList.remove('hidden');
+        });
+        document.getElementById('btn-close-matchup').addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+        
+        // Hide modal when clicking the transparent background area
+        document.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+
+        const btnToggleParam = document.getElementById('btn-toggle-param');
+        const paramColumn = document.getElementById('parameter-column');
+        const paramContent = document.getElementById('parameter-content');
+        const sidebar = document.getElementById('sidebar');
+        const toggleParamIcon = document.getElementById('toggle-param-icon');
+        const miniControls = document.getElementById('mini-controls');
+
+        function triggerResizeWithTransition() {
+            let startTime = performance.now();
+            function animateResize(now) {
+                resizeCanvas();
+                if (!isRunning) draw();
+                if (now - startTime < 350) {
+                    requestAnimationFrame(animateResize);
+                }
+            }
+            requestAnimationFrame(animateResize);
+        }
+
+        btnToggleParam.addEventListener('click', () => {
+            if (isParamOpen) {
+                sidebar.classList.remove('lg:w-[680px]');
+                sidebar.classList.add('lg:w-[380px]'); 
+                
+                paramColumn.classList.remove('w-full', 'md:w-[315px]', 'lg:w-[360px]', 'p-6');
+                paramColumn.classList.add('w-12', 'p-2', 'items-center', 'justify-start', 'pt-6', 'min-h-[300px]');
+                
+                paramContent.classList.add('hidden');
+                miniControls.classList.remove('hidden');
+                miniControls.classList.add('flex');
+                
+                toggleParamIcon.textContent = '⬅'; 
+                isParamOpen = false;
+            } else {
+                sidebar.classList.remove('lg:w-[380px]');
+                sidebar.classList.add('lg:w-[680px]');
+                
+                paramColumn.classList.remove('w-12', 'p-2', 'items-center', 'justify-start', 'pt-6', 'min-h-[300px]');
+                paramColumn.classList.add('w-full', 'md:w-[315px]', 'lg:w-[360px]', 'p-6');
+                
+                paramContent.classList.remove('hidden');
+                miniControls.classList.add('hidden');
+                miniControls.classList.remove('flex');
+                
+                toggleParamIcon.textContent = '➔'; 
+                isParamOpen = true;
+            }
+            triggerResizeWithTransition();
+        });
+
+        const btnPlayPause = document.getElementById('btn-play-pause');
+        const playPauseIcon = document.getElementById('play-pause-icon');
+        const playPauseText = document.getElementById('play-pause-text');
+
+        const btnPlayPauseMini = document.getElementById('btn-play-pause-mini');
+        const playPauseIconMini = document.getElementById('play-pause-icon-mini');
+
+        function togglePlayPause() {
+            if (!isRunning) {
+                isRunning = true;
+                btnPlayPause.classList.remove('bg-emerald-600', 'hover:bg-emerald-500', 'border-emerald-500');
+                btnPlayPause.classList.add('bg-amber-600', 'hover:bg-amber-500', 'border-amber-500');
+                playPauseIcon.textContent = '⏸';
+                playPauseText.textContent = '一時停止';
+
+                btnPlayPauseMini.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
+                btnPlayPauseMini.classList.add('bg-amber-600', 'hover:bg-amber-500');
+                playPauseIconMini.textContent = '⏸';
+
+                lastStatsUpdate = performance.now();
+                requestAnimationFrame(gameLoop);
+            } else {
+                isRunning = false;
+                btnPlayPause.classList.remove('bg-amber-600', 'hover:bg-amber-500', 'border-amber-500');
+                btnPlayPause.classList.add('bg-emerald-600', 'hover:bg-emerald-500', 'border-emerald-500');
+                playPauseIcon.textContent = '▶';
+                playPauseText.textContent = '再開';
+
+                btnPlayPauseMini.classList.remove('bg-amber-600', 'hover:bg-amber-500');
+                btnPlayPauseMini.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+                playPauseIconMini.textContent = '▶';
+
+                cancelAnimationFrame(animationId);
+            }
+        }
+
+        btnPlayPause.addEventListener('click', togglePlayPause);
+        btnPlayPauseMini.addEventListener('click', togglePlayPause);
+
+        function triggerReset() {
+            resizeCanvas();
+            initParticles();
+            draw();
+        }
+
+        document.getElementById('btn-reset').addEventListener('click', triggerReset);
+        document.getElementById('btn-reset-mini').addEventListener('click', triggerReset);
+
+        document.getElementById('btn-start').addEventListener('click', () => {
+            document.getElementById('start-overlay').style.display = 'none';
+            
+            resizeCanvas();
+            initParticles();
+            
+            if (!isRunning) {
+                isRunning = true;
+                lastStatsUpdate = performance.now();
+                requestAnimationFrame(gameLoop);
+                
+                btnPlayPause.classList.remove('bg-emerald-600', 'hover:bg-emerald-500', 'border-emerald-500');
+                btnPlayPause.classList.add('bg-amber-600', 'hover:bg-amber-500', 'border-amber-500');
+                playPauseIcon.textContent = '⏸';
+                playPauseText.textContent = '一時停止';
+
+                btnPlayPauseMini.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
+                btnPlayPauseMini.classList.add('bg-amber-600', 'hover:bg-amber-500');
+                playPauseIconMini.textContent = '⏸';
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            const oldWidth = width;
+            const oldHeight = height;
+            resizeCanvas();
+            
+            if (width < oldWidth || height < oldHeight) {
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    if (p.x + config.radius > width) p.x = width - config.radius;
+                    if (p.y + config.radius > height) p.y = height - config.radius;
+                }
+            }
+            if (!isRunning) draw();
+        });
+
+        window.onload = () => {
+            generateMatchupTable();
+            setTimeout(() => {
+                resizeCanvas();
+                initParticles();
+                draw();
+            }, 100);
+        };
+    </script>
+</body>
+</html>
