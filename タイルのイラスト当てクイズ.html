@@ -157,15 +157,11 @@ function preloadNext(){
   })();
 }
 
-// 単一コードポイントの記号系(⚓☔⛄など)はVS15(U+FE0E, テキスト表示指定)を付けると
-// フォント側がカラー絵文字字形より白黒/アウトライン字形を優先してくれることが多いので、
-// 明示的なVS16(カラー指定)は外し、単一コードポイントの場合はVS15を付与して描画する。
-// 複数コードポイントのZWJ列などはテキスト字形自体が存在しないので変更しない。
+// VS15(テキスト表示指定)を付与する案も試しましたが、環境によっては全く別の字形に
+// フォールバックしてしまう副作用があったため撤回。素の文字列をそのまま描画し、
+// 判定は色ヒストグラムチェック+次問題の先読み検証側でカバーする。
 function buildRenderString(cps){
-  const filtered=cps.filter(cp=>cp!==0xFE0F);
-  let s=String.fromCodePoint(...filtered);
-  if(filtered.length===1) s+='\uFE0E';
-  return s;
+  return String.fromCodePoint(...cps);
 }
 
 function renderToCanvas(ctx, size, cps){
