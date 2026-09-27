@@ -119,10 +119,13 @@ function pickEmoji(){
   let candidates=pool.filter(e=>!recentSet.has(keyOf(e)) && !knownBad.has(keyOf(e)));
   if(candidates.length===0) candidates=pool.filter(e=>!recentSet.has(keyOf(e)));
   if(candidates.length===0) candidates=pool;
-  const chosen=candidates[Math.floor(Math.random()*candidates.length)];
-  recent.push(keyOf(chosen));
+  if(candidates.length===0) return null;
+  return candidates[Math.floor(Math.random()*candidates.length)];
+}
+// 実際に画面に出題した時だけ「直近10件」に積む(先読み中の失敗トライで枠を消費しないように)
+function markShown(cps){
+  recent.push(keyOf(cps));
   if(recent.length>10) recent.shift();
-  return chosen;
 }
 
 function saveSettings(){
@@ -138,21 +141,55 @@ const dispCanvas=document.getElementById('displayCanvas');
 dispCanvas.width=SIZE; dispCanvas.height=SIZE;
 const dispCtx=dispCanvas.getContext('2d');
 
-function renderFull(cps){
-  fullCtx.clearRect(0,0,SIZE,SIZE);
-  fullCtx.font=`${SIZE*0.8}px "Noto Emoji"`;
-  fullCtx.textAlign='center'; fullCtx.textBaseline='middle';
-  fullCtx.fillText(String.fromCodePoint(...cps), SIZE/2, SIZE/2+SIZE*0.02);
+// 次の問題を、現在の出題中(T秒間)にバックグラウンドで先読み・検証しておく。
+// フォント読み込みに余裕を持たせることで、本番描画時のカラー/お豆腐化率を下げる狙い。
+const preloadCanvas=document.createElement('canvas');
+preloadCanvas.width=SIZE; preloadCanvas.height=SIZE;
+const preloadCtx=preloadCanvas.getContext('2d');
+let preloaded=null; // {cps} 先読み成功済みなら非null(画像はpreloadCanvasに描画済み)
+let preloadingPromise=null;
+
+function preloadNext(){
+  preloaded=null;
+  preloadingPromise=(async ()=>{
+    const cand=await prepareCandidate(preloadCtx, preloadCanvas);
+    if(cand) preloaded={cps:cand};
+  })();
 }
+
+// 単一コードポイントの記号系(⚓☔⛄など)はVS15(U+FE0E, テキスト表示指定)を付けると
+// フォント側がカラー絵文字字形より白黒/アウトライン字形を優先してくれることが多いので、
+// 明示的なVS16(カラー指定)は外し、単一コードポイントの場合はVS15を付与して描画する。
+// 複数コードポイントのZWJ列などはテキスト字形自体が存在しないので変更しない。
+function buildRenderString(cps){
+  const filtered=cps.filter(cp=>cp!==0xFE0F);
+  let s=String.fromCodePoint(...filtered);
+  if(filtered.length===1) s+='\uFE0E';
+  return s;
+}
+
+function renderToCanvas(ctx, size, cps){
+  ctx.clearRect(0,0,size,size);
+  ctx.font=`${size*0.8}px "Noto Emoji"`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(buildRenderString(cps), size/2, size/2+size*0.02);
+}
+function renderFull(cps){ renderToCanvas(fullCtx, SIZE, cps); }
 
 function canvasHasColor(canvas){
   const c=canvas.getContext('2d');
   const data=c.getImageData(0,0,canvas.width,canvas.height).data;
+  let colorPixels=0;
   for(let i=0;i<data.length;i+=4){
     const a=data[i+3];
     if(a<20) continue;
     const r=data[i],g=data[i+1],b=data[i+2];
-    if(Math.max(r,g,b)-Math.min(r,g,b)>28) return true;
+    // 本来のNoto Emoji(無彩色)描画ならR=G=Bになるはずなので、閾値は厳しめにする。
+    // ただし1ピクセルだけの誤差で誤判定しないよう、まとまった数を超えたらtrueにする。
+    if(Math.max(r,g,b)-Math.min(r,g,b)>6){
+      colorPixels++;
+      if(colorPixels>3) return true;
+    }
   }
   return false;
 }
@@ -170,21 +207,34 @@ function canvasSignature(canvas){
 // それと一致したら「このコードポイントは未対応」と判定する
 let tofuSignature=null;
 function computeTofuSignature(){
-  renderFull([0x10FFFD]); // Unicode上で実質どのフォントも定義していない私用領域の文字
+  renderToCanvas(fullCtx, SIZE, [0x10FFFD]); // Unicode上で実質どのフォントも定義していない私用領域の文字
   tofuSignature=canvasSignature(fullCanvas);
 }
 
 // フォントの適用/グリフ確定が遅れてカラー版が一瞬描かれることがあるため、
 // 白黒判定→カラーなら再描画、を数フレーム待ちながら繰り返す。
 // お豆腐(未対応グリフ)は待っても変化しないので即座に'tofu'として返す。
-async function renderFullUntilMono(cps, maxTries=40){
+async function renderUntilMono(ctx, canvas, cps, maxTries=40){
   for(let i=0;i<maxTries;i++){
-    renderFull(cps);
-    if(tofuSignature!==null && canvasSignature(fullCanvas)===tofuSignature) return 'tofu';
-    if(!canvasHasColor(fullCanvas)) return 'ok';
+    renderToCanvas(ctx, canvas.width, cps);
+    if(tofuSignature!==null && canvasSignature(canvas)===tofuSignature) return 'tofu';
+    if(!canvasHasColor(canvas)) return 'ok';
     await new Promise(r=>requestAnimationFrame(r));
   }
   return 'color';
+}
+
+// pickEmoji()で候補を引いては検証、を成功するまで繰り返す(失敗した候補はknownBadへ)
+async function prepareCandidate(ctx, canvas){
+  const maxAttempts=pool.length+5;
+  for(let tries=0; tries<maxAttempts; tries++){
+    const cand=pickEmoji();
+    if(!cand) return null;
+    const result=await renderUntilMono(ctx, canvas, cand);
+    if(result==='ok') return cand;
+    knownBad.add(keyOf(cand));
+  }
+  return null;
 }
 
 let colorTable=[]; // colorTable[y][x] = このマスが表示されるFcの値(縦横隣接マスとは必ず異なる値になる)
@@ -274,18 +324,33 @@ async function startQuestion(){
   clearDisplay();
   applyStateUI();
 
-  let result='color', tries=0;
-  const maxAttempts=pool.length+5;
-  while(result!=='ok' && tries<maxAttempts){
-    currentEmoji=pickEmoji();
-    result=await renderFullUntilMono(currentEmoji);
-    if(result!=='ok') knownBad.add(keyOf(currentEmoji));
-    tries++;
+  let chosenCps=null;
+  if(preloaded){
+    chosenCps=preloaded.cps;
+    fullCtx.clearRect(0,0,SIZE,SIZE);
+    fullCtx.drawImage(preloadCanvas,0,0);
+    preloaded=null;
+  } else {
+    if(preloadingPromise) await preloadingPromise; // 先読み中なら完了を待つ
+    if(preloaded){
+      chosenCps=preloaded.cps;
+      fullCtx.clearRect(0,0,SIZE,SIZE);
+      fullCtx.drawImage(preloadCanvas,0,0);
+      preloaded=null;
+    } else {
+      chosenCps=await prepareCandidate(fullCtx, fullCanvas); // 先読みが無い/失敗した場合はその場で用意
+    }
   }
+  if(!chosenCps) chosenCps=pool[0]; // 全滅した場合の最終フォールバック
+
+  currentEmoji=chosenCps;
+  markShown(currentEmoji);
 
   elapsed=0; Fc=0; phaseAccum=0; lastTs=null;
   imageReady=true;
   if(state==='question') drawMask();
+
+  preloadNext(); // 今回の出題中に次を先読みしておく
 }
 
 function loop(ts){
@@ -374,6 +439,7 @@ emojiListInput.addEventListener('change', ()=>{
   pool=parseEmojiText(settings.emojiListText);
   recent=[];
   knownBad=new Set();
+  preloaded=null; preloadingPromise=null;
   saveSettings();
 });
 resetDefaults.addEventListener('click', ()=>{
@@ -382,6 +448,7 @@ resetDefaults.addEventListener('click', ()=>{
   pool=parseEmojiText(settings.emojiListText);
   recent=[];
   knownBad=new Set();
+  preloaded=null; preloadingPromise=null;
   refreshDialogUI();
   regenerateColorTable();
   startQuestion();
