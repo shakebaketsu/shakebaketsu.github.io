@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>白黒絵文字タイルクイズ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Emoji:wght@400..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f5f3; --fg:#1e1e1e; --panel:#ffffff; --border:#ddd; --accent:#3b7ce0; --warn:#c9612b;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#151515;--fg:#eee;--panel:#222;--border:#3a3a3a;--accent:#6ea3ff;--warn:#f0a95c;}
+}
+:root[data-theme="dark"]{--bg:#151515;--fg:#eee;--panel:#222;--border:#3a3a3a;--accent:#6ea3ff;--warn:#f0a95c;}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;}
+body{background:var(--bg);color:var(--fg);font-family:"Hiragino Sans","Yu Gothic UI",sans-serif;overflow:hidden;user-select:none;}
+#gearBtn{position:fixed;left:calc(14px + env(safe-area-inset-left,0px));top:calc(14px + env(safe-area-inset-top,0px));
+  width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--panel);color:var(--fg);
+  font-size:1.3rem;cursor:pointer;z-index:5;}
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+#centerArea{width:min(84vw,72vh);aspect-ratio:1;background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+#displayCanvas{width:100%;height:100%;display:block;}
+#timerTrack{position:fixed;left:0;bottom:calc(0px + env(safe-area-inset-bottom,0px));width:50%;height:12px;background:var(--border);border-top-right-radius:8px;overflow:hidden;}
+#timerFill{height:100%;width:100%;background:var(--accent);transition:background-color .3s ease;}
+#answerBtn{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  padding:12px 20px;border-radius:12px;border:1px solid var(--border);background:var(--accent);color:#fff;font-size:1rem;cursor:pointer;z-index:5;}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:10;}
+#overlay.hidden{display:none;}
+#dialog{background:var(--panel);border-radius:14px;padding:18px 20px;width:min(92vw,440px);max-height:86vh;overflow-y:auto;}
+#dialog h2{margin:0 0 12px;font-size:1.05rem;}
+.field{margin-bottom:14px;}
+.field label{display:flex;justify-content:space-between;font-size:.85rem;color:var(--fg);margin-bottom:4px;}
+.field input[type=range]{width:100%;}
+.field input[type=number]{width:100%;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--fg);}
+.field textarea{width:100%;min-height:90px;font-family:ui-monospace,monospace;font-size:.72rem;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--fg);}
+.warn{color:var(--warn);font-size:.78rem;margin-top:4px;}
+.warn.hidden{display:none;}
+#closeSettings,#resetDefaults{margin-top:6px;margin-right:8px;padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--accent);color:#fff;cursor:pointer;}
+#resetDefaults{background:var(--panel);color:var(--fg);}
+
+#stateLabel{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(34px + env(safe-area-inset-bottom,0px));
+  padding:5px 16px;border-radius:999px;font-size:.78rem;font-weight:600;border:1px solid var(--border);
+  background:var(--panel);color:var(--fg);z-index:4;transition:background-color .25s,color .25s,border-color .25s;white-space:nowrap;}
+body.state-question #stateLabel{border-color:var(--accent);color:var(--accent);}
+body.state-hidden #stateLabel{border-color:var(--warn);color:var(--warn);}
+body.state-answer #stateLabel{background:#2fa84f;border-color:#2fa84f;color:#fff;}
+
+body.state-question #centerArea{border-color:var(--accent);}
+body.state-hidden #centerArea{border-style:dashed;border-color:var(--warn);}
+body.state-answer #centerArea{border-color:#2fa84f;border-width:2px;}
+
+body.state-answer #answerBtn{background:#2fa84f;}
+</style>
+</head>
+<body>
+<button id="gearBtn" title="設定">⚙</button>
+<div id="stage"><div id="centerArea"><canvas id="displayCanvas"></canvas></div></div>
+<div id="stateLabel"></div>
+<div id="timerTrack"><div id="timerFill"></div></div>
+<button id="answerBtn">答え</button>
+
+<div id="overlay" class="hidden">
+  <div id="dialog">
+    <h2>設定</h2>
+    <div class="field"><label>タイル分割数 N <span id="nVal"></span></label><input type="range" id="nSlider" min="4" max="16" step="1"></div>
+    <div class="field"><label>制限時間 T(秒) <span id="tVal"></span></label><input type="range" id="tSlider" min="5" max="30" step="0.1"></div>
+    <div class="field"><label>フレーム総数 F <span id="fVal"></span></label><input type="range" id="fSlider" min="3" max="10" step="1"></div>
+    <div class="field"><label>初期フレーム間隔 Is(秒)</label><input type="number" id="isInput" step="0.01"></div>
+    <div class="field"><label>最終フレーム間隔 Ie(秒)</label><input type="number" id="ieInput" step="0.01"></div>
+    <div class="field"><label>対象絵文字ユニコード</label><textarea id="emojiListInput"></textarea></div>
+    <button id="resetDefaults">デフォルトに戻す</button>
+    <button id="closeSettings">閉じる</button>
+  </div>
+</div>
+
+<script>
+const DEFAULT_EMOJI_TEXT = "U+231A U+23F0 U+23F3 U+2614-U+2615 U+2693 U+26BD-U+26BE U+26C4-U+26C5 U+26F2 U+26F5 U+26FA U+26FD U+270A-U+270B U+1F004 U+1F302 U+1F30A-U+1F30B U+1F30F U+1F31B U+1F31E U+1F32D U+1F334-U+1F335 U+1F337-U+1F339 U+1F33B U+1F33D U+1F340-U+1F341 U+1F344-U+1F347 U+1F349-U+1F34D U+1F34F-U+1F356 U+1F359-U+1F35A U+1F35C-U+1F35F U+1F361-U+1F366 U+1F369 U+1F36B U+1F36D-U+1F36E U+1F370 U+1F373 U+1F37A U+1F37F U+1F381 U+1F383-U+1F384 U+1F388-U+1F389 U+1F38D-U+1F390 U+1F392 U+1F3A0-U+1F3A1 U+1F3A3-U+1F3A5 U+1F3A7-U+1F3A8 U+1F3AE-U+1F3B0 U+1F3B2-U+1F3B3 U+1F3B5 U+1F3B7-U+1F3B8 U+1F3BA-U+1F3BB U+1F3BE U+1F3C0 U+1F3C4 U+1F3C7-U+1F3C8 U+1F3CA U+1F3D3 U+1F3EF U+1F3F8-U+1F3F9 U+1F401 U+1F404-U+1F405 U+1F407 U+1F408+U+200D+U+2B1B U+1F409-U+1F40A U+1F40C-U+1F410 U+1F412-U+1F413 U+1F415-U+1F416 U+1F418-U+1F41F U+1F421-U+1F422 U+1F424 U+1F427 U+1F42A U+1F42C U+1F433 U+1F452 U+1F458-U+1F459 U+1F45F U+1F463 U+1F47A-U+1F47B U+1F489 U+1F48D-U+1F48E U+1F4A1 U+1F4A3 U+1F4A9-U+1F4AA U+1F4CE U+1F4D0 U+1F4E1-U+1F4E2 U+1F4EA U+1F4F7 U+1F4FA-U+1F4FB U+1F50C U+1F511 U+1F514 U+1F525 U+1F527-U+1F528 U+1F52A-U+1F52B U+1F52D U+1F5FC U+1F5FF U+1F680-U+1F682 U+1F693 U+1F697 U+1F69B-U+1F69C U+1F6A2 U+1F6B2 U+1F6D2 U+1F6D9 U+1F6DD U+1F6F5 U+1F6F9 U+1F941 U+1F94C U+1F950-U+1F951 U+1F955 U+1F95C U+1F95E U+1F966 U+1F980 U+1F982 U+1F986-U+1F989 U+1F98B-U+1F992 U+1F994 U+1F996-U+1F998 U+1F99C U+1F9A5-U+1F9A6 U+1F9A9 U+1F9AD U+1F9C0 U+1F9DE U+1F9E3-U+1F9E4 U+1F9E9 U+1F9F7-U+1F9F9 U+1F9FB U+1FA79 U+1FA81-U+1FA82 U+1FA87 U+1FA89 U+1FA8D-U+1FA91 U+1FAA3 U+1FAA9 U+1FAAD U+1FABC U+1FACD U+1FAD1 U+1FAD6 U+1FADC";
+
+function parseEmojiText(text){
+  const out=[];
+  text.trim().split(/\s+/).filter(Boolean).forEach(tok=>{
+    const groups=[...tok.matchAll(/U\+([0-9A-Fa-f]+)/gi)].map(m=>parseInt(m[1],16));
+    if(groups.length===0) return;
+    if(groups.length===1){ out.push([groups[0]]); return; }
+    // groups.length >= 2: decide range ("-") vs multi-codepoint ("+") by checking
+    // the character right after the FIRST "U+XXXX" group, not by tok.includes('+')
+    // (every token contains a '+' from "U+" itself, so that check was always true).
+    const firstGroupMatch=tok.match(/U\+[0-9A-Fa-f]+/i)[0];
+    const sep=tok[firstGroupMatch.length];
+    if(sep==='-'){
+      const start=groups[0], end=groups[groups.length-1];
+      for(let cp=start; cp<=end; cp++) out.push([cp]);
+    } else {
+      out.push(groups);
+    }
+  });
+  return out;
+}
+
+const DEFAULTS={N:6,T:20.0,F:6,Is:1,Ie:0.02,emojiListText:DEFAULT_EMOJI_TEXT};
+let settings={...DEFAULTS};
+try{
+  const saved=JSON.parse(localStorage.getItem('monoEmojiGameSettings')||'null');
+  if(saved) settings={...DEFAULTS,...saved};
+}catch(e){}
+
+let pool=parseEmojiText(settings.emojiListText);
+let recent=[];
+let knownBad=new Set(); // お豆腐/カラー化が確認できたコードポイントは以後このセッションでは出題しない
+
+function keyOf(cps){return cps.join(',');}
+function pickEmoji(){
+  const recentSet=new Set(recent);
+  let candidates=pool.filter(e=>!recentSet.has(keyOf(e)) && !knownBad.has(keyOf(e)));
+  if(candidates.length===0) candidates=pool.filter(e=>!recentSet.has(keyOf(e)));
+  if(candidates.length===0) candidates=pool;
+  const chosen=candidates[Math.floor(Math.random()*candidates.length)];
+  recent.push(keyOf(chosen));
+  if(recent.length>10) recent.shift();
+  return chosen;
+}
+
+function saveSettings(){
+  localStorage.setItem('monoEmojiGameSettings', JSON.stringify(settings));
+}
+
+// --- Canvas setup ---
+const SIZE=480;
+const fullCanvas=document.createElement('canvas');
+fullCanvas.width=SIZE; fullCanvas.height=SIZE;
+const fullCtx=fullCanvas.getContext('2d');
+const dispCanvas=document.getElementById('displayCanvas');
+dispCanvas.width=SIZE; dispCanvas.height=SIZE;
+const dispCtx=dispCanvas.getContext('2d');
+
+function renderFull(cps){
+  fullCtx.clearRect(0,0,SIZE,SIZE);
+  fullCtx.font=`${SIZE*0.8}px "Noto Emoji"`;
+  fullCtx.textAlign='center'; fullCtx.textBaseline='middle';
+  fullCtx.fillText(String.fromCodePoint(...cps), SIZE/2, SIZE/2+SIZE*0.02);
+}
+
+function canvasHasColor(canvas){
+  const c=canvas.getContext('2d');
+  const data=c.getImageData(0,0,canvas.width,canvas.height).data;
+  for(let i=0;i<data.length;i+=4){
+    const a=data[i+3];
+    if(a<20) continue;
+    const r=data[i],g=data[i+1],b=data[i+2];
+    if(Math.max(r,g,b)-Math.min(r,g,b)>28) return true;
+  }
+  return false;
+}
+
+function canvasSignature(canvas){
+  const c=canvas.getContext('2d');
+  const data=c.getImageData(0,0,canvas.width,canvas.height).data;
+  let hash=0;
+  for(let i=3;i<data.length;i+=4){ hash=(hash*31+data[i])>>>0; } // アルファチャンネルの並びをハッシュ化
+  return hash;
+}
+
+// フォントが対応していない文字を描くと出る"お豆腐"は、多くのフォントで同一の代替グリフが
+// 使われるため、実在しないはずのコードポイントを描いた時の見た目をあらかじめ基準として持っておき、
+// それと一致したら「このコードポイントは未対応」と判定する
+let tofuSignature=null;
+function computeTofuSignature(){
+  renderFull([0x10FFFD]); // Unicode上で実質どのフォントも定義していない私用領域の文字
+  tofuSignature=canvasSignature(fullCanvas);
+}
+
+// フォントの適用/グリフ確定が遅れてカラー版が一瞬描かれることがあるため、
+// 白黒判定→カラーなら再描画、を数フレーム待ちながら繰り返す。
+// お豆腐(未対応グリフ)は待っても変化しないので即座に'tofu'として返す。
+async function renderFullUntilMono(cps, maxTries=40){
+  for(let i=0;i<maxTries;i++){
+    renderFull(cps);
+    if(tofuSignature!==null && canvasSignature(fullCanvas)===tofuSignature) return 'tofu';
+    if(!canvasHasColor(fullCanvas)) return 'ok';
+    await new Promise(r=>requestAnimationFrame(r));
+  }
+  return 'color';
+}
+
+let colorTable=[]; // colorTable[y][x] = このマスが表示されるFcの値(縦横隣接マスとは必ず異なる値になる)
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function tryBuildColoring(N,F){
+  const table=Array.from({length:N},()=>new Array(N).fill(-1));
+  const order=[];
+  for(let y=0;y<N;y++) for(let x=0;x<N;x++) order.push([x,y]);
+  shuffle(order);
+  for(const [x,y] of order){
+    const forbidden=new Set();
+    if(x>0 && table[y][x-1]>=0) forbidden.add(table[y][x-1]);
+    if(x<N-1 && table[y][x+1]>=0) forbidden.add(table[y][x+1]);
+    if(y>0 && table[y-1][x]>=0) forbidden.add(table[y-1][x]);
+    if(y<N-1 && table[y+1][x]>=0) forbidden.add(table[y+1][x]);
+    const available=[];
+    for(let c=0;c<F;c++) if(!forbidden.has(c)) available.push(c);
+    if(available.length===0) return null; // 詰んだ→やり直し
+    table[y][x]=available[Math.floor(Math.random()*available.length)];
+  }
+  return table;
+}
+
+function buildValidColoring(N,F,maxAttempts=300){
+  for(let i=0;i<maxAttempts;i++){
+    const t=tryBuildColoring(N,F);
+    if(t) return t;
+  }
+  // 最終手段: 縦横隣接の非衝突だけは必ず満たす単純式(斜め線状にはなるが安全策)
+  const table=Array.from({length:N},()=>new Array(N).fill(0));
+  for(let y=0;y<N;y++) for(let x=0;x<N;x++) table[y][x]=(x+y)%F;
+  return table;
+}
+
+function regenerateColorTable(){
+  colorTable=buildValidColoring(settings.N, settings.F);
+}
+
+function drawMask(){
+  dispCtx.clearRect(0,0,SIZE,SIZE);
+  const N=settings.N, tile=SIZE/N;
+  for(let y=0;y<N;y++){
+    for(let x=0;x<N;x++){
+      if(colorTable[y][x]===Fc){
+        const sx=x*tile, sy=y*tile;
+        dispCtx.drawImage(fullCanvas, sx,sy,tile,tile, sx,sy,tile,tile);
+      }
+    }
+  }
+}
+function drawFullAnswer(){
+  dispCtx.clearRect(0,0,SIZE,SIZE);
+  dispCtx.drawImage(fullCanvas,0,0);
+}
+function clearDisplay(){ dispCtx.clearRect(0,0,SIZE,SIZE); }
+
+// --- Game state ---
+let state='question'; // 'question' | 'hidden' | 'answer'
+let elapsed=0;
+let Fc=0;
+let phaseAccum=0;
+let lastTs=null;
+let currentEmoji=null;
+let imageReady=false;
+
+const timerFill=document.getElementById('timerFill');
+const answerBtn=document.getElementById('answerBtn');
+
+function currentInterval(){
+  const frac=Math.min(1, elapsed/settings.T);
+  return settings.Is + (settings.Ie - settings.Is)*frac;
+}
+
+async function startQuestion(){
+  state='question';
+  imageReady=false;
+  answerBtn.textContent='答え';
+  timerFill.style.width='100%';
+  clearDisplay();
+  applyStateUI();
+
+  let result='color', tries=0;
+  const maxAttempts=pool.length+5;
+  while(result!=='ok' && tries<maxAttempts){
+    currentEmoji=pickEmoji();
+    result=await renderFullUntilMono(currentEmoji);
+    if(result!=='ok') knownBad.add(keyOf(currentEmoji));
+    tries++;
+  }
+
+  elapsed=0; Fc=0; phaseAccum=0; lastTs=null;
+  imageReady=true;
+  if(state==='question') drawMask();
+}
+
+function loop(ts){
+  requestAnimationFrame(loop);
+  if(lastTs===null) lastTs=ts;
+  const dt=(ts-lastTs)/1000;
+  lastTs=ts;
+
+  if(state==='question' && imageReady){
+    elapsed=Math.min(settings.T, elapsed+dt);
+    const remainFrac=Math.max(0,(1-elapsed/settings.T));
+    timerFill.style.width=`${remainFrac*100}%`;
+    timerFill.style.background = remainFrac<0.25 ? 'var(--warn)' : 'var(--accent)';
+
+    const interval=Math.max(0.001, currentInterval());
+    phaseAccum+=dt/interval;
+    let changed=false;
+    while(phaseAccum>=1){
+      phaseAccum-=1;
+      Fc=(Fc+1)%settings.F;
+      changed=true;
+    }
+    if(changed) drawMask();
+
+    if(elapsed>=settings.T){
+      state='hidden';
+      clearDisplay();
+      applyStateUI();
+    }
+  }
+}
+requestAnimationFrame(loop);
+
+function applyStateUI(){
+  document.body.classList.remove('state-question','state-hidden','state-answer');
+  document.body.classList.add('state-'+state);
+  const label=document.getElementById('stateLabel');
+  if(state==='question') label.textContent='🕐 問題表示中';
+  else if(state==='hidden') label.textContent='⏳ タイムアップ';
+  else label.textContent='✅ こたえ';
+}
+
+answerBtn.addEventListener('click', ()=>{
+  if(state==='answer'){
+    startQuestion();
+  } else {
+    state='answer';
+    answerBtn.textContent='次の問題';
+    drawFullAnswer();
+    applyStateUI();
+  }
+});
+
+// --- Settings dialog wiring ---
+const overlay=document.getElementById('overlay');
+const gearBtn=document.getElementById('gearBtn');
+const closeSettings=document.getElementById('closeSettings');
+const nSlider=document.getElementById('nSlider'), nVal=document.getElementById('nVal');
+const tSlider=document.getElementById('tSlider'), tVal=document.getElementById('tVal');
+const fSlider=document.getElementById('fSlider'), fVal=document.getElementById('fVal');
+const isInput=document.getElementById('isInput');
+const ieInput=document.getElementById('ieInput');
+const emojiListInput=document.getElementById('emojiListInput');
+const resetDefaults=document.getElementById('resetDefaults');
+
+function refreshDialogUI(){
+  nSlider.value=settings.N; nVal.textContent=settings.N;
+  tSlider.value=settings.T; tVal.textContent=settings.T.toFixed(1);
+  fSlider.value=settings.F; fVal.textContent=settings.F;
+  isInput.value=settings.Is;
+  ieInput.value=settings.Ie;
+  emojiListInput.value=settings.emojiListText;
+}
+
+gearBtn.addEventListener('click', ()=>{ refreshDialogUI(); overlay.classList.remove('hidden'); });
+closeSettings.addEventListener('click', ()=> overlay.classList.add('hidden'));
+overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.classList.add('hidden'); });
+
+nSlider.addEventListener('input', ()=>{ settings.N=parseInt(nSlider.value,10); nVal.textContent=settings.N; saveSettings(); regenerateColorTable(); if(state==='question') drawMask(); else if(state==='answer') drawFullAnswer(); });
+tSlider.addEventListener('input', ()=>{ settings.T=parseFloat(tSlider.value); tVal.textContent=settings.T.toFixed(1); saveSettings(); });
+fSlider.addEventListener('input', ()=>{ settings.F=parseInt(fSlider.value,10); fVal.textContent=settings.F; Fc=Fc%settings.F; saveSettings(); regenerateColorTable(); if(state==='question') drawMask(); });
+isInput.addEventListener('change', ()=>{ settings.Is=parseFloat(isInput.value)||0; saveSettings(); });
+ieInput.addEventListener('change', ()=>{ settings.Ie=parseFloat(ieInput.value)||0; saveSettings(); });
+emojiListInput.addEventListener('change', ()=>{
+  settings.emojiListText=emojiListInput.value;
+  pool=parseEmojiText(settings.emojiListText);
+  recent=[];
+  knownBad=new Set();
+  saveSettings();
+});
+resetDefaults.addEventListener('click', ()=>{
+  settings={...DEFAULTS};
+  saveSettings();
+  pool=parseEmojiText(settings.emojiListText);
+  recent=[];
+  knownBad=new Set();
+  refreshDialogUI();
+  regenerateColorTable();
+  startQuestion();
+});
+
+// --- init ---
+(async ()=>{
+  try{ await document.fonts.load('400 400px "Noto Emoji"'); }catch(e){}
+  await document.fonts.ready;
+  computeTofuSignature();
+  regenerateColorTable();
+  await startQuestion();
+})();
+</script>
+</body>
+</html>
